@@ -46,6 +46,7 @@ private:
   
 
   // Data members
+  TH1F* h_muEta;
   TH1F* h_muPt;
 };
 
@@ -59,22 +60,38 @@ private:
 //
 
 
-DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig) {}
+DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig)
+{
+}
 
-DMAnalysisTreeMaker::~DMAnalysisTreeMaker() {}
+
+DMAnalysisTreeMaker::~DMAnalysisTreeMaker()
+{
+}
+
 
 void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // Muons
+  edm::Handle< std::vector<float> > handle_muEta;
   edm::Handle< std::vector<float> > handle_muPt;
-  iEvent.getByLabel(edm::InputTag("muons","muPt"), handle_muPt);
 
-  if (!handle_muPt.isValid()) return;
+  iEvent.getByLabel(edm::InputTag("muons","muEta"), handle_muEta);
+  iEvent.getByLabel(edm::InputTag("muons","muPt"),  handle_muPt);
 
-  const std::vector<float> muPt = *(handle_muPt.product());
+  if (!handle_muEta.isValid()) return;
+  if (!handle_muPt.isValid())  return;
+
+  const std::vector<float> muEta = *(handle_muEta.product());
+  const std::vector<float> muPt  = *(handle_muPt.product());
 
   int muPt_size = muPt.size();
 
-  for (int i=0; i<muPt_size; i++) h_muPt->Fill(muPt.at(i));
+  for (int i=0; i<muPt_size; i++)
+    {
+      h_muEta->Fill(muEta.at(i));
+      h_muPt ->Fill(muPt.at(i));
+    }
 }
 
 
@@ -82,10 +99,14 @@ void DMAnalysisTreeMaker::beginJob()
 {
   edm::Service<TFileService> fs;
 
-  h_muPt = fs->make<TH1F>("h_muPt", "", 200, 0, 200);
+  h_muEta = fs->make<TH1F>("h_muEta", ";muon #eta",        100, -3,   3);
+  h_muPt  = fs->make<TH1F>("h_muPt",  ";muon p_{T} [GeV]", 100,  0, 300);
 }
 
-void DMAnalysisTreeMaker::endJob() {}
+
+void DMAnalysisTreeMaker::endJob()
+{
+}
 
 
 // Fill 'descriptions' with the allowed parameters for the module
