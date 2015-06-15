@@ -1,4 +1,4 @@
-1. Get ROOT
+1. Get CMSSW
 ====
 
     ssh -Y gridui.ifca.es -o ServerAliveInterval=240
@@ -12,6 +12,17 @@
     cd CMSSW_7_4_4_ROOT5/src
     cmsenv
 
+
+2. Get the material
+====
+
+    git clone https://github.com/piedraj/DMAnalysis
+
+
+3. Run
+====
+
     scram b -j 8
-     cd DMAnalysis/DMAnalysisTreeMaker/test/
-     cmsRun ../python/ConfFile_cfg.py
+    cd DMAnalysis/DMAnalysisTreeMaker/test/
+    cmsRun ConfFile_cfg.py
+
