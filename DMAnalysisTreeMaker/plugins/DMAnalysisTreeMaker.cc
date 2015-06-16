@@ -89,7 +89,7 @@ DMAnalysisTreeMaker::~DMAnalysisTreeMaker()
 
 void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  printf(" Hello 00\n");
+  //printf(" Hello 00\n");
 
   // Electrons
   edm::Handle< std::vector<float> > handle_elCharge  ;
@@ -166,10 +166,10 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::Handle< std::vector<float> > handle_jetAK4Phi;
   edm::Handle< std::vector<float> > handle_jetAK4Pt ;
 
-  iEvent.getByLabel(edm::InputTag("jetAK4","jetAK4E"  ), handle_jetAK4E  );
-  iEvent.getByLabel(edm::InputTag("jetAK4","jetAK4Eta"), handle_jetAK4Eta);
-  iEvent.getByLabel(edm::InputTag("jetAK4","jetAK4Phi"), handle_jetAK4Phi);
-  iEvent.getByLabel(edm::InputTag("jetAK4","jetAK4Pt" ), handle_jetAK4Pt );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4E"  ), handle_jetAK4E  );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Eta"), handle_jetAK4Eta);
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Phi"), handle_jetAK4Phi);
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Pt" ), handle_jetAK4Pt );
 
   if (!handle_jetAK4E.isValid())   return;
   if (!handle_jetAK4Eta.isValid()) return;
@@ -261,24 +261,28 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 //  if ( AnalysisLeptons[0].charge * AnalysisLeptons[1].charge < 0 ) continue;
 
+  if ( AnalysisLeptons.size() < 2 ){
+
   Lepton lep1, lep2;
 
   lep1 = AnalysisLeptons[0];
 
   lep2 = AnalysisLeptons[1];
 
-  math::PtEtaPhiELorentzVector lep1_tlv(lep1.Pt, lep1.Eta, lep1.Phi, lep1.E);
-    //lep2_tlv; 
+  //math::PtEtaPhiELorentzVector lep1_tlv(lep1.Pt, lep1.Eta, lep1.Phi, lep1.E);
+  //lep2_tlv; 
 
   //  lep1_tlv.SetPtEtaPhiE
 
-  printf(" pt: %f \t eta: %f \t m: %f\n", lep1_tlv.Pt(), lep1_tlv.Eta(), lep1_tlv.M());
+  //printf(" pt: %f \t eta: %f \t m: %f\n", lep1_tlv.Pt(), lep1_tlv.Eta(), lep1_tlv.M()); 
+
+  }
 
   //  lep2_tlv.SetPtEtaPhiE(lep2.Pt, lep2.Eta, lep2.Phi, lep2.E);
 
 // if ( (lep1_tlv+lep2_tlv).M() > 20. ) continue;
 
-
+  printf(" Hello 03\n");
 // Jet Selection
 //-------------------------------------------------------------------------- 
 /*  for ( UInt_t i = 0; i < jetAK4Pt.size(); i++ ) {
