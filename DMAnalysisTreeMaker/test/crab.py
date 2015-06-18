@@ -3,13 +3,13 @@ config = Configuration()
 
 config.section_('General')
 config.General.transferOutputs = True
-config.General.requestName = 'DM_ferrero'
+config.General.requestName = 'DM_ferrero04'
 
 config.section_('JobType')
 config.JobType.pluginName  = 'Analysis'
 config.JobType.psetName    = 'ConfFile_cfg.py'
 config.JobType.outputFiles = ['DM.root']
-config.JobType.allowNonProductionCMSSW = True
+config.JobType.allowUndistributedCMSSW = True
 
 config.section_('Data')
 config.Data.inputDBS = 'phys03'
@@ -19,4 +19,4 @@ config.Data.unitsPerJob  = 20
 config.Data.outLFNDirBase = '/store/user/jgarciaf'
 
 config.section_('Site')
-config.Site.storageSite = 'T2_IFCA_ES'
+config.Site.storageSite = 'T2_ES_IFCA'

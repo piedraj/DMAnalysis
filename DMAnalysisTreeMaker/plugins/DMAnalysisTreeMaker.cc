@@ -79,22 +79,25 @@ private:
 // constants, enums and typedefs
 //
 
-struct Lepton
-{
+struct Lepton {
 
-  UInt_t         flavor;  // Muon, Electron
-  float          charge;
-  float          Pt;
-  float		 Eta;
-  //float          Mass; 
-  float          Phi;
-  float          E; 
+	UInt_t         flavor;  // Muon, Electron
+	float          charge;
+	float          Pt;
+	float	       Eta;
+	//float          Mass; 
+	float          Phi;
+	float          E; 
 
-  Bool_t operator<(const Lepton& a) const {
-	return Pt > a.Pt;
-  }
-
+  	Bool_t operator<(const Lepton& a) const {
+		return Pt > a.Pt;
+  	}
 };
+
+bool myfunction (math::PtEtaPhiELorentzVector v1, math::PtEtaPhiELorentzVector v2) { 
+	return ( v1.Pt() > v2.Pt() ); 
+} 
+
 
 //
 // static data member definitions
@@ -371,8 +374,14 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 // Sort SelectedJets !!
 //---------------------------------------------------------------------------------- 
-// ...
+  //printf(" pt before: ");
+  //for(int i = 0; i < n_jet; i++) printf( " %f \t", SelectedJets[i].Pt() );
+  //printf("\n pt after: ");
 
+  std::sort(SelectedJets.begin(), SelectedJets.end(), myfunction);
+
+  //for(int i = 0; i < n_jet; i++) printf( " %f \t", SelectedJets[i].Pt() );
+  // printf("\n .................... \n");
 
   if( n_jet < 2) return;
 
