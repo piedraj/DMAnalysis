@@ -1,0 +1,76 @@
+DEBUG 2015-06-19 10:06:37,799: 	 Executing command: 'status'
+DEBUG 2015-06-19 10:06:37,799: 	 Found CRAB cache file /afs/cern.ch/user/j/jgarciaf/.crab3
+DEBUG 2015-06-19 10:06:37,811: 	 Checking credentials
+DEBUG 2015-06-19 10:06:37,812: 	 Found proxy file /tmp/x509up_u41713
+DEBUG 2015-06-19 10:06:37,812: 	 Getting proxy life time left
+DEBUG 2015-06-19 10:06:38,632: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u41713 -timeleft
+ output : 86294
+
+ error: 
+ retcode : 0
+DEBUG 2015-06-19 10:06:39,744: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u41713 -actimeleft
+ output : 86293
+
+ error: 
+ retcode : 0
+DEBUG 2015-06-19 10:06:39,745: 	 Proxy valid for 23:58:14 hours
+DEBUG 2015-06-19 10:06:39,873: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jgarciaf/CN=701863/CN=Juan Garcia Ferrero
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/779a792f862039a4ebba572299ebbb36/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1m-comp/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-06-19 10:06:39,873: 	 Checking credentials
+DEBUG 2015-06-19 10:06:39,874: 	 Found proxy file /tmp/x509up_u41713
+DEBUG 2015-06-19 10:06:39,874: 	 Getting proxy life time left
+DEBUG 2015-06-19 10:06:40,800: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u41713 -timeleft
+ output : 86292
+
+ error: 
+ retcode : 0
+DEBUG 2015-06-19 10:06:42,064: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u41713 -actimeleft
+ output : 86291
+
+ error: 
+ retcode : 0
+DEBUG 2015-06-19 10:06:42,064: 	 Proxy valid for 23:58:12 hours
+DEBUG 2015-06-19 10:06:42,380: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031).cern.ch
+DEBUG 2015-06-19 10:06:42,496: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jgarciaf/CN=701863/CN=Juan Garcia Ferrero
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/779a792f862039a4ebba572299ebbb36/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1m-comp/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-06-19 10:06:42,496: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-06-19 10:06:42,496: 	 Calculating hash of /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jgarciaf/CN=701863/CN=Juan Garcia Ferrero_cmsweb.cern.ch for credential name
+DEBUG 2015-06-19 10:06:42,907: 	 Executing : 
+ command : myproxy-info -l 3f2ba81ff48c92e8c48caa95a50291e4c1a85ed4 -s myproxy.cern.ch
+ output : username: 3f2ba81ff48c92e8c48caa95a50291e4c1a85ed4
+owner: /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jgarciaf/CN=701863/CN=Juan Garcia Ferrero
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031).cern.ch
+  timeleft: 488:48:41  (20.4 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-06-19 10:06:42,908: 	 Myproxy is valid: 1759721
+DEBUG 2015-06-19 10:06:42,909: 	 Command use: status
+DEBUG 2015-06-19 10:06:42,909: 	 Options use: ['crab_projects_ferrero/crab_ZJetsToNuNu/']
+DEBUG 2015-06-19 10:06:43,215: 	 CRABClient version: 3.3.1506
+DEBUG 2015-06-19 10:06:43,215: 	 Instance is prod
+DEBUG 2015-06-19 10:06:43,217: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-06-19 10:06:43,217: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-06-19 10:06:43,217: 	 Looking up detailed status of task 150619_080511:jgarciaf_crab_ZJetsToNuNu
+DEBUG 2015-06-19 10:06:44,373: 	 {'status': 'UNKNOWN', 'schedd': 'crab3test-2@vocms095.cern.ch', 'saveLogs': 'T', 'totalJobdefs': 0, 'jobSetID': '', 'jobsPerStatus': {}, 'taskWarningMsg': [], 'taskFailureMsg': 'Node status file not currently available. Retry in a minute if you just submitted the task', 'failedJobdefs': 0, 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': []}
+INFO 2015-06-19 10:06:44,374: 	 CRAB project directory:		/afs/cern.ch/user/j/jgarciaf/CMSSW_7_4_4_ROOT5/src/DMAnalysis/DMAnalysisTreeMaker/test/crab/crab_projects_ferrero/crab_ZJetsToNuNu
+INFO 2015-06-19 10:06:44,374: 	 Task name:			150619_080511:jgarciaf_crab_ZJetsToNuNu
+INFO 2015-06-19 10:06:44,374: 	 Task status:			UNKNOWN
+ERROR 2015-06-19 10:06:44,374: 	 Error during task information retrieval:	Node status file not currently available. Retry in a minute if you just submitted the task.
+INFO 2015-06-19 10:06:44,374: 	 
+No jobs created yet!

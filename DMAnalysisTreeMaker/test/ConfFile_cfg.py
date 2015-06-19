@@ -9,7 +9,7 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("test.root"),
+                                   fileName = cms.string("DM.root"),
                                    closeFileFast = cms.untracked.bool(True))
 
 process.source = cms.Source(
