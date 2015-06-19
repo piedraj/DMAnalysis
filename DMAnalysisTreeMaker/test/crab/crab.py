@@ -3,7 +3,7 @@ config = Configuration()
 
 config.section_('General')
 config.General.transferOutputs = True
-config.General.requestName = 'DM_ferrero'
+config.General.requestName = 'DM_ferrero04'
 
 config.section_('JobType')
 config.JobType.pluginName  = 'Analysis'
