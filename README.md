@@ -19,10 +19,18 @@
     git clone https://github.com/piedraj/DMAnalysis
 
 
-3. Run
+3. Run (local)
 ====
 
     scram b -j 8
     cd DMAnalysis/DMAnalysisTreeMaker/test/
     cmsRun ConfFile_cfg.py
 
+
+4. Run with CRAB
+====	
+
+    source /cvmfs/cms.cern.ch/crab3/crab.sh
+    cd crab/
+    python multicrab.py samples_b2g.py
+    crab status crab_projects_ferrero/crab_<sample name at "samples_b2g.py">
