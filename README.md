@@ -19,7 +19,7 @@
     git clone https://github.com/piedraj/DMAnalysis
 
 
-3. Run (local)
+3. Test the code
 ====
 
     scram b -j 8

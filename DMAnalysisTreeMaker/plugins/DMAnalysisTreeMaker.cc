@@ -29,9 +29,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TH1F.h"
+#include "TTree.h"
 #include "DataFormats/Math/interface/LorentzVector.h" 
 #include "Math/GenVector/VectorUtil.h"
-////////////////////////#include "TLorentzVector.h"
 
 
 class DMAnalysisTreeMaker : public edm::EDAnalyzer {
@@ -49,8 +49,9 @@ private:
   
 
   // Data members
-  //TH1F* h_muEta;
-  //TH1F* h_muPt;
+  TTree* DMTree = new TTree();
+
+  std::vector<float> *t_muPt;
 
   TH1F* h_MET_all_01           ;
   TH1F* h_JetPt_all_01         ; 
@@ -70,28 +71,28 @@ private:
   TH1F* h_MET_all_04           ;
   TH1F* h_JetPt_all_04         ;             
   TH1F* h_LeptonPt_all_04      ;     
-  TH1F* h_LeptonDeltaPhi_all_04; 
-
+  TH1F* h_LeptonDeltaPhi_all_04;
 };
 
 
 //
 // constants, enums and typedefs
 //
+enum {Electron=1, Muon=2};
 
-struct Lepton {
+struct Lepton
+{
+  UInt_t Flavor;
+  float  Charge;
+  float  Pt;
+  float	 Eta;
+  float  Mass; 
+  float  Phi;
+  float  E; 
 
-	UInt_t         flavor;  // Muon, Electron
-	float          charge;
-	float          Pt;
-	float	       Eta;
-	//float          Mass; 
-	float          Phi;
-	float          E; 
-
-  	Bool_t operator<(const Lepton& a) const {
-		return Pt > a.Pt;
-  	}
+  Bool_t operator<(const Lepton& a) const {
+    return Pt > a.Pt;
+  }
 };
 
 bool myfunction (math::PtEtaPhiELorentzVector v1, math::PtEtaPhiELorentzVector v2) { 
@@ -116,7 +117,6 @@ DMAnalysisTreeMaker::~DMAnalysisTreeMaker()
 
 void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   // Electrons
   edm::Handle< std::vector<float> > handle_elCharge  ;
   edm::Handle< std::vector<float> > handle_elE       ;
@@ -194,7 +194,6 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
   // Jets
-
   edm::Handle< std::vector<float> > handle_jetAK4E  ;
   edm::Handle< std::vector<float> > handle_jetAK4Eta;
   edm::Handle< std::vector<float> > handle_jetAK4Phi;
@@ -216,14 +215,19 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<float> jetAK4Pt  = *(handle_jetAK4Pt.product() );
 
   // MET
-
   edm::Handle< std::vector<float> > handle_metPt;
       
   iEvent.getByLabel(edm::InputTag("met","metPt"  ), handle_metPt);
 
   if (!handle_metPt.isValid()) return;
 
-  const std::vector<float> metPt = *(handle_metPt.product()  );
+  const std::vector<float> metPt = *(handle_metPt.product());
+
+
+  // Tree variables
+  t_muPt = new std::vector<float>;
+
+
 
 //---------------------------------------------------------------------------------- 
 
@@ -240,9 +244,9 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
  	Lepton elec;
 
-	elec.flavor = 1;
+	elec.Flavor = Electron;
 
-	elec.charge = elCharge.at(i);
+	elec.Charge = elCharge.at(i);
 
 	elec.Pt     = elPt.at(i);
 
@@ -262,15 +266,17 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   for ( UInt_t i = 0; i < muPt.size(); i++ ) {
 
+    t_muPt->push_back(muPt.at(i));
+
 	if ( muIsTightMuon.at(i) != 1.0 ) continue;   // id 
 
 	if ( muIso04.at(i) > 0.12 ) continue;   // iso
 
  	Lepton muon;
 
-	muon.flavor = 2;
+	muon.Flavor = 2;
 
-	muon.charge = muCharge.at(i);
+	muon.Charge = muCharge.at(i);
 
 	muon.Pt     = muPt.at(i);
 
@@ -309,16 +315,12 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 //--------------------------------------------------------------------------
   if ( n_leptons < 2 ) return;
 
-  //printf("number of leptons = %i \n", n_leptons); 
+  bool opposite_charge = false;	
 
-  bool  opposite_charge = false;	
-
-  opposite_charge = ( AnalysisLeptons[0].charge * AnalysisLeptons[1].charge < 0 );
+  opposite_charge = ( AnalysisLeptons[0].Charge * AnalysisLeptons[1].Charge < 0 );
 
   if ( !opposite_charge ) return;
 
-  //printf("pair charge = %f \n", AnalysisLeptons[0].charge * AnalysisLeptons[1].charge);
- 
   Lepton lep1, lep2;
 
   lep1 = AnalysisLeptons[0];
@@ -395,9 +397,9 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 //---------------------------------------------------------------------------------- 
    int ch; 
 
-    if ( lep1.flavor * lep2.flavor == 1 ) ch = 0;   // ee
-    if ( lep1.flavor * lep2.flavor == 4 ) ch = 1;   // mumu
-    if ( lep1.flavor * lep2.flavor == 2 ) ch = 2;   // emu
+    if ( lep1.Flavor * lep2.Flavor == 1 ) ch = 0;   // ee
+    if ( lep1.Flavor * lep2.Flavor == 4 ) ch = 1;   // mumu
+    if ( lep1.Flavor * lep2.Flavor == 2 ) ch = 2;   // emu
 
 
 //---------------------------------------------------------------------------------- 
@@ -467,6 +469,14 @@ h_LeptonPt_all_04      ->Fill(lep1.Pt + lep2.Pt);
 h_LeptonDeltaPhi_all_04->Fill(fabs( ROOT::Math::VectorUtil::DeltaPhi(lep1_tlv, lep2_tlv) )); 
 
 
+// Fill the tree and delete the pointers
+ DMTree->Fill();
+
+ delete t_muPt;
+
+
+
+
 }   // end DMAnalysisTreeMaker::analyze
 
 
@@ -476,8 +486,9 @@ void DMAnalysisTreeMaker::beginJob()
 {
   edm::Service<TFileService> fs;
 
-  //h_muEta = fs->make<TH1F>("h_muEta", ";muon #eta",        100, -3,   3);
-  //h_muPt  = fs->make<TH1F>("h_muPt",  ";muon p_{T} [GeV]", 100,  0, 300);
+  DMTree = fs->make<TTree>("DMTree", "DMTree", 0);
+
+  DMTree->Branch("t_muPt", "std::vector<float>", &t_muPt);
 
 //histo definition at Mkhistogr2.c:  h[i][l][m] = new TH1F( id[i][l][m],    ntu[i][1],    blup[i][0], blup[i][1], blup[i][2] )     with  id[i][l][m] = ntu[i][0] + "_" + namech[l] + "_" + namecut[m]
 
