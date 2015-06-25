@@ -51,6 +51,8 @@ private:
   // Data members
   TTree* DMTree = new TTree();
 
+  float t_metPt;
+
   std::vector<float> *t_muPt;
 
   TH1F* h_MET_all_01           ;
@@ -217,7 +219,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   // MET
   edm::Handle< std::vector<float> > handle_metPt;
       
-  iEvent.getByLabel(edm::InputTag("met","metPt"  ), handle_metPt);
+  iEvent.getByLabel(edm::InputTag("met","metPt"), handle_metPt);
 
   if (!handle_metPt.isValid()) return;
 
@@ -404,13 +406,22 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 //---------------------------------------------------------------------------------- 
 
-// int muPt_size = muPt.size();
 
-// for (int i=0; i<muPt_size; i++)
-//    {      
-//      h_muEta->Fill(muIsTightMuon.at(i));
-//      h_muPt ->Fill(muIso04.at(i));
-//    }
+  // Fill the tree and delete the pointers
+  // Replace (1) by the skim selection
+  t_metPt = metPt.at(0);
+
+  if (1)
+    {
+      DMTree->Fill();
+    }
+
+  delete t_muPt;
+
+
+//---------------------------------------------------------------------------------- 
+
+
 
 
 float Zradius      = 15. ;
@@ -469,11 +480,6 @@ h_LeptonPt_all_04      ->Fill(lep1.Pt + lep2.Pt);
 h_LeptonDeltaPhi_all_04->Fill(fabs( ROOT::Math::VectorUtil::DeltaPhi(lep1_tlv, lep2_tlv) )); 
 
 
-// Fill the tree and delete the pointers
- DMTree->Fill();
-
- delete t_muPt;
-
 
 
 
@@ -488,7 +494,8 @@ void DMAnalysisTreeMaker::beginJob()
 
   DMTree = fs->make<TTree>("DMTree", "DMTree", 0);
 
-  DMTree->Branch("t_muPt", "std::vector<float>", &t_muPt);
+  DMTree->Branch("t_metPt", &t_metPt,             "t_metPt/F");
+  DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);
 
 //histo definition at Mkhistogr2.c:  h[i][l][m] = new TH1F( id[i][l][m],    ntu[i][1],    blup[i][0], blup[i][1], blup[i][2] )     with  id[i][l][m] = ntu[i][0] + "_" + namech[l] + "_" + namecut[m]
 
