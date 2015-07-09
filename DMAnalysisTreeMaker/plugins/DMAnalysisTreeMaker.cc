@@ -49,13 +49,65 @@ private:
   
 
   // Data members
+
+
+//-----   branches   ----------------------------------------
+
   TTree* DMTree = new TTree();
 
   float t_metPt;
 
-  std::vector<float> *t_muPt;
+  // leptons
 
-  TH1F* h_MET_all_01           ;
+  float t_ch; 
+
+  float t_lep1Pt ;
+  float t_lep1Eta;
+  float t_lep1Phi;
+  float t_lep1E  ;
+
+  float t_lep2Pt ;
+  float t_lep2Eta;
+  float t_lep2Phi;
+  float t_lep2E  ;
+
+  float t_dilepInvMass;
+
+  // jets
+  float t_jet1Pt ;
+  float t_jet1Eta;
+  float t_jet1Phi;
+  float t_jet1E  ;
+
+  float t_jet2Pt ;
+  float t_jet2Eta;
+  float t_jet2Phi;
+  float t_jet2E  ;
+
+  // event shape definitions
+  float t_C_a          ;
+  float t_C_b          ;
+  float t_D_a          ;
+  float t_D_b          ;
+  float t_aplanarity_a ;
+  float t_aplanarity_b ;
+  float t_circularity_a;
+  float t_circularity_b;
+  float t_isotropy_a   ;
+  float t_isotropy_b   ;
+  float t_sphericity_a ;
+  float t_sphericity_b ;
+  float t_thrust_a     ;
+  float t_thrust_b     ;
+  float t_centrality   ;
+
+  //std::vector<float> *t_muPt;   // vectorial branch
+
+
+
+//-----   histos   ------------------------------------------
+
+/*  TH1F* h_MET_all_01           ;
   TH1F* h_JetPt_all_01         ; 
   TH1F* h_LeptonPt_all_01      ;  
   TH1F* h_LeptonDeltaPhi_all_01; 
@@ -73,7 +125,7 @@ private:
   TH1F* h_MET_all_04           ;
   TH1F* h_JetPt_all_04         ;             
   TH1F* h_LeptonPt_all_04      ;     
-  TH1F* h_LeptonDeltaPhi_all_04;
+  TH1F* h_LeptonDeltaPhi_all_04;*/
 };
 
 
@@ -119,6 +171,13 @@ DMAnalysisTreeMaker::~DMAnalysisTreeMaker()
 
 void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  //-- modelo -----
+  // edm::Handle< <column1> > handle_metPt; 
+  // iEvent.getByLabel(edm::InputTag("<column2>","<column3>"), handle_metPt);
+  // if (!handle_metPt.isValid()) return;
+  // const std::vector<float> metPt = *(handle_metPt.product());
+
   // Electrons
   edm::Handle< std::vector<float> > handle_elCharge  ;
   edm::Handle< std::vector<float> > handle_elE       ;
@@ -142,7 +201,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!handle_elE.isValid())        return;
   if (!handle_elEta.isValid())      return;
   if (!handle_elIso03.isValid())    return;
-  if (!handle_elMass.isValid())    return;
+  if (!handle_elMass.isValid())     return;
   if (!handle_elPhi.isValid())      return;
   if (!handle_elPt.isValid())       return;
   if (!handle_elisMedium.isValid()) return;
@@ -226,10 +285,98 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<float> metPt = *(handle_metPt.product());
 
 
+
+  // genPart
+  edm::Handle< std::vector<float> > handle_genPartMass;
+      
+  iEvent.getByLabel(edm::InputTag("genPart","genPartMass"), handle_genPartMass);
+
+  if (!handle_genPartMass.isValid()) return;
+
+  const std::vector<float> genPartMass = *(handle_genPartMass.product());
+
+
+  // event shape definitions
+
+  edm::Handle< double > handle_C_a          ;
+  edm::Handle< double > handle_C_b          ;
+  edm::Handle< double > handle_D_a          ;
+  edm::Handle< double > handle_D_b          ;
+  edm::Handle< double > handle_aplanarity_a ;
+  edm::Handle< double > handle_aplanarity_b ;
+  edm::Handle< double > handle_circularity_a;
+  edm::Handle< double > handle_circularity_b;
+  edm::Handle< double > handle_isotropy_a   ;
+  edm::Handle< double > handle_isotropy_b   ;
+  edm::Handle< double > handle_sphericity_a ;
+  edm::Handle< double > handle_sphericity_b ;
+  edm::Handle< double > handle_thrust_a     ;
+  edm::Handle< double > handle_thrust_b     ;
+  edm::Handle< double > handle_centrality   ;
+ 
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "C"          ), handle_C_a          );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "C"          ), handle_C_b          );
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "D"          ), handle_D_a          );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "D"          ), handle_D_b          );
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "aplanarity" ), handle_aplanarity_a );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "aplanarity" ), handle_aplanarity_b );
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "circularity"), handle_circularity_a);
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "circularity"), handle_circularity_b);
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "isotropy"   ), handle_isotropy_a   );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "isotropy"   ), handle_isotropy_b   );
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "sphericity" ), handle_sphericity_a );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "sphericity" ), handle_sphericity_b );
+  iEvent.getByLabel(edm::InputTag("eventShapePFJetVars", "thrust"     ), handle_thrust_a     );
+  iEvent.getByLabel(edm::InputTag("eventShapePFVars"   , "thrust"     ), handle_thrust_b     );
+  iEvent.getByLabel(edm::InputTag("centrality"         , "centrality" ), handle_centrality   );
+
+  if (!handle_C_a.isValid())           return;
+  if (!handle_C_b.isValid())           return;
+  if (!handle_D_a.isValid())           return;
+  if (!handle_D_b.isValid())           return;
+  if (!handle_aplanarity_a.isValid())  return;
+  if (!handle_aplanarity_b.isValid())  return;
+  if (!handle_circularity_a.isValid()) return;
+  if (!handle_circularity_b.isValid()) return;
+  if (!handle_isotropy_a.isValid())    return;
+  if (!handle_isotropy_b.isValid())    return;
+  if (!handle_sphericity_a.isValid())  return;
+  if (!handle_sphericity_b.isValid())  return;
+  if (!handle_thrust_a.isValid())      return;
+  if (!handle_thrust_b.isValid())      return;
+  if (!handle_centrality.isValid())    return;
+
+  const double C_a           = *(handle_C_a.product()          );
+  const double C_b           = *(handle_C_b.product()          );
+  const double D_a           = *(handle_D_a.product()          );
+  const double D_b           = *(handle_D_b.product()          );
+  const double aplanarity_a  = *(handle_aplanarity_a.product() );
+  const double aplanarity_b  = *(handle_aplanarity_b.product() );
+  const double circularity_a = *(handle_circularity_a.product());
+  const double circularity_b = *(handle_circularity_b.product());
+  const double isotropy_a    = *(handle_isotropy_a.product()   );
+  const double isotropy_b    = *(handle_isotropy_b.product()   );
+  const double sphericity_a  = *(handle_sphericity_a.product() );
+  const double sphericity_b  = *(handle_sphericity_b.product() );
+  const double thrust_a      = *(handle_thrust_a.product()     );
+  const double thrust_b      = *(handle_thrust_b.product()     );
+  const double centrality    = *(handle_centrality.product()   );
+
+  
+
+
   // Tree variables
-  t_muPt = new std::vector<float>;
+  //t_muPt = new std::vector<float>;   // vectorial branch
 
 
+
+
+  int Size = genPartMass.size(); 
+  //printf("genPartMass vector size is: %i \n", Size );
+  printf("------------- \n");
+  for ( int i = 0; i < Size; i++) {
+  	printf( "%i \t %f \n", i, genPartMass.at(i));
+  }
 
 //---------------------------------------------------------------------------------- 
 
@@ -268,7 +415,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   for ( UInt_t i = 0; i < muPt.size(); i++ ) {
 
-    t_muPt->push_back(muPt.at(i));
+    //t_muPt->push_back(muPt.at(i));    // vectorial branch
 
 	if ( muIsTightMuon.at(i) != 1.0 ) continue;   // id 
 
@@ -389,19 +536,19 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
   if( n_jet < 2) return;
 
-//  printf("number of jets = %i \n", n_jet); 
+  //  printf("number of jets = %i \n", n_jet); 
 
-  math::PtEtaPhiELorentzVector jet1_tlv = SelectedJets[0];
-  math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];
+  math::PtEtaPhiELorentzVector jet1_tlv = SelectedJets[0];   // comented at 8.vii
+  math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];   // comented at 8.vii
 
 
 // channel assignment
 //---------------------------------------------------------------------------------- 
-   int ch; 
+    int ch; 
 
     if ( lep1.Flavor * lep2.Flavor == 1 ) ch = 0;   // ee
     if ( lep1.Flavor * lep2.Flavor == 4 ) ch = 1;   // mumu
-    if ( lep1.Flavor * lep2.Flavor == 2 ) ch = 2;   // emu
+    if ( lep1.Flavor * lep2.Flavor == 2 ) ch = 2;   // emu 
 
 
 //---------------------------------------------------------------------------------- 
@@ -409,14 +556,54 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
   // Fill the tree and delete the pointers
   // Replace (1) by the skim selection
-  t_metPt = metPt.at(0);
+  t_metPt   = metPt.at(0);
+
+  t_ch = ch;
+
+  t_lep1Pt  = lep1.Pt ;
+  t_lep1Eta = lep1.Eta;
+  t_lep1Phi = lep1.Phi;
+  t_lep1E   = lep1.E  ;
+
+  t_lep2Pt  = lep2.Pt ;
+  t_lep2Eta = lep2.Eta;
+  t_lep2Phi = lep2.Phi;
+  t_lep2E   = lep2.E  ;
+
+  t_dilepInvMass = m_ll;
+
+  t_jet1Pt  = jet1_tlv.Pt() ;
+  t_jet1Eta = jet1_tlv.Eta();
+  t_jet1Phi = jet1_tlv.Phi();
+  t_jet1E   = jet1_tlv.E()  ;
+
+  t_jet2Pt  = jet2_tlv.Pt() ;
+  t_jet2Eta = jet2_tlv.Eta();
+  t_jet2Phi = jet2_tlv.Phi();
+  t_jet2E   = jet2_tlv.E()  ;
+
+  t_C_a           = C_a          ;
+  t_C_b           = C_b          ;
+  t_D_a           = D_a          ;
+  t_D_b           = D_b          ;
+  t_aplanarity_a  = aplanarity_a ;
+  t_aplanarity_b  = aplanarity_b ;
+  t_circularity_a = circularity_a;
+  t_circularity_b = circularity_b;
+  t_isotropy_a    = isotropy_a   ;
+  t_isotropy_b    = isotropy_b   ;
+  t_sphericity_a  = sphericity_a ;
+  t_sphericity_b  = sphericity_b ;
+  t_thrust_a      = thrust_a     ;
+  t_thrust_b      = thrust_b     ;
+  t_centrality    = centrality   ;
 
   if (1)
     {
       DMTree->Fill();
     }
 
-  delete t_muPt;
+  //delete t_muPt;   // vectorial branch
 
 
 //---------------------------------------------------------------------------------- 
@@ -424,7 +611,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 
 
-float Zradius      = 15. ;
+/*float Zradius      = 15. ;
 
 float lim_MET      = 320.;
 
@@ -477,7 +664,7 @@ if (  MET == true  ) return;
 h_MET_all_04           ->Fill(metPt.at(0));
 h_JetPt_all_04         ->Fill(jet1_tlv.Pt() + jet2_tlv.Pt());             
 h_LeptonPt_all_04      ->Fill(lep1.Pt + lep2.Pt);     
-h_LeptonDeltaPhi_all_04->Fill(fabs( ROOT::Math::VectorUtil::DeltaPhi(lep1_tlv, lep2_tlv) )); 
+h_LeptonDeltaPhi_all_04->Fill(fabs( ROOT::Math::VectorUtil::DeltaPhi(lep1_tlv, lep2_tlv) )); */ 
 
 
 
@@ -494,12 +681,56 @@ void DMAnalysisTreeMaker::beginJob()
 
   DMTree = fs->make<TTree>("DMTree", "DMTree", 0);
 
-  DMTree->Branch("t_metPt", &t_metPt,             "t_metPt/F");
-  DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);
+  DMTree->Branch("t_metPt", &t_metPt, "t_metPt/F");
+
+  DMTree->Branch("t_ch", &t_ch, "t_ch");
+  
+  DMTree->Branch("t_lep1Pt" , &t_lep1Pt , "t_lep1Pt/F" );
+  DMTree->Branch("t_lep1Eta", &t_lep1Eta, "t_lep1Eta/F"); 
+  DMTree->Branch("t_lep1Phi", &t_lep1Phi, "t_lep1Phi/F"); 
+  DMTree->Branch("t_lep1E"  , &t_lep1E  , "t_lep1E/F"  ); 
+
+  DMTree->Branch("t_lep2Pt" , &t_lep2Pt , "t_lep2Pt/F" );  
+  DMTree->Branch("t_lep2Eta", &t_lep2Eta, "t_lep2Eta/F");
+  DMTree->Branch("t_lep2Phi", &t_lep2Phi, "t_lep2Phi/F");
+  DMTree->Branch("t_lep2E"  , &t_lep2E  , "t_lep2E/F"  );  
+
+  DMTree->Branch("t_dilepInvMass", &t_dilepInvMass , "t_dilepInvMass/F" ); 
+
+  DMTree->Branch("t_jet1Pt" , &t_jet1Pt , "t_jet1Pt/F" ); 
+  DMTree->Branch("t_jet1Eta", &t_jet1Eta, "t_jet1Eta/F");
+  DMTree->Branch("t_jet1Phi", &t_jet1Phi, "t_jet1Phi/F");
+  DMTree->Branch("t_jet1E"  , &t_jet1E  , "t_jet1E/F"  ); 
+  DMTree->Branch("t_jet2Pt" , &t_jet2Pt , "t_jet2Pt/F" );
+  DMTree->Branch("t_jet2Eta", &t_jet2Eta, "t_jet2Eta/F");
+  DMTree->Branch("t_jet2Phi", &t_jet2Phi, "t_jet2Phi/F");
+  DMTree->Branch("t_jet2E"  , &t_jet2E  , "t_jet2E/F"  );  
+
+  DMTree->Branch("t_C_a"          , &t_C_a          , "t_C_a/F"          );     
+  DMTree->Branch("t_C_b"          , &t_C_b          , "t_C_b/F"          );          
+  DMTree->Branch("t_D_a"          , &t_D_a          , "t_D_a/F"          );          
+  DMTree->Branch("t_D_b"          , &t_D_b          , "t_D_b/F"          );          
+  DMTree->Branch("t_aplanarity_a" , &t_aplanarity_a , "t_aplanarity_a/F" ); 
+  DMTree->Branch("t_aplanarity_b" , &t_aplanarity_b , "t_aplanarity_b/F" ); 
+  DMTree->Branch("t_circularity_a", &t_circularity_a, "t_circularity_a/F");
+  DMTree->Branch("t_circularity_b", &t_circularity_b, "t_circularity_b/F");
+  DMTree->Branch("t_isotropy_a"   , &t_isotropy_a   , "t_isotropy_a/F"   );   
+  DMTree->Branch("t_isotropy_b"   , &t_isotropy_b   , "t_isotropy_b/F"   );  
+  DMTree->Branch("t_sphericity_a" , &t_sphericity_a , "t_sphericity_a/F" );
+  DMTree->Branch("t_sphericity_b" , &t_sphericity_b , "t_sphericity_b/F" );
+  DMTree->Branch("t_thrust_a"     , &t_thrust_a     , "t_thrust_a/F"     );     
+  DMTree->Branch("t_thrust_b"     , &t_thrust_b     , "t_thrust_b/F"     );     
+  DMTree->Branch("t_centrality"   , &t_centrality   , "t_centrality/F"   );   
+  
+
+  //DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);   // vectorial branch
+ 
+
+
 
 //histo definition at Mkhistogr2.c:  h[i][l][m] = new TH1F( id[i][l][m],    ntu[i][1],    blup[i][0], blup[i][1], blup[i][2] )     with  id[i][l][m] = ntu[i][0] + "_" + namech[l] + "_" + namecut[m]
 
- h_MET_all_01            = fs->make<TH1F>( "MET_all_01"           ,  "E_{T}^{miss} [GeV]"               ,  15, 0 , 600  );
+/* h_MET_all_01            = fs->make<TH1F>( "MET_all_01"           ,  "E_{T}^{miss} [GeV]"               ,  15, 0 , 600  );
  h_JetPt_all_01          = fs->make<TH1F>( "JetPt_all_01"         ,  "sum of p_{T} of two jets [GeV]"   ,  12, 0 , 1200 );    
  h_LeptonPt_all_01       = fs->make<TH1F>( "LeptonPt_all_01"      ,  "sum of p_{T} of two leptons [GeV]",  14, 40, 600  );   
  h_LeptonDeltaPhi_all_01 = fs->make<TH1F>( "LeptonDeltaPhi_all_01",  "#Delta#phi_{ll}"                  ,  16, 0 , 3.2  ); 
@@ -517,7 +748,7 @@ void DMAnalysisTreeMaker::beginJob()
  h_MET_all_04            = fs->make<TH1F>( "MET_all_04"           ,  "E_{T}^{miss} [GeV]"               ,  15, 0 , 600  );
  h_JetPt_all_04          = fs->make<TH1F>( "JetPt_all_04"         ,  "sum of p_{T} of two jets [GeV]"   ,  12, 0 , 1200 );    
  h_LeptonPt_all_04       = fs->make<TH1F>( "LeptonPt_all_04"      ,  "sum of p_{T} of two leptons [GeV]",  14, 40, 600  );   
- h_LeptonDeltaPhi_all_04 = fs->make<TH1F>( "LeptonDeltaPhi_all_04",  "#Delta#phi_{ll}"                  ,  16, 0 , 3.2  ); 
+ h_LeptonDeltaPhi_all_04 = fs->make<TH1F>( "LeptonDeltaPhi_all_04",  "#Delta#phi_{ll}"                  ,  16, 0 , 3.2  ); */
 
 }
 
