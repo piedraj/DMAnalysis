@@ -4,7 +4,7 @@ config = Configuration()
 
 config.section_('General')
 config.General.transferLogs = True
-config.General.workArea     = 'crab_projects_ferrero'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_ferrero_04'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.pluginName  = 'Analysis'
