@@ -48,8 +48,9 @@ private:
   virtual void endJob() override;
   
 
-  // Data members
+ // Data members
 
+ bool readGen_;
 
 //-----   branches   ----------------------------------------
 
@@ -122,6 +123,10 @@ private:
   std::vector<float> *t_genPartStatus;
   std::vector<float> *t_genPartY     ;*/
 
+  //trigger
+  std::vector<float>       *t_triggerBitTree;
+  std::vector<int>         *t_triggerPrescaleTree;
+  std::vector<std::string> *t_triggerNameTree;
 
 //-----   histos   ------------------------------------------
 
@@ -177,8 +182,10 @@ bool myfunction (math::PtEtaPhiELorentzVector v1, math::PtEtaPhiELorentzVector v
 //
 
 
-DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig)
+DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig) :
+readGen_ (iConfig.getUntrackedParameter<bool>("readGen", false))
 {
+
 }
 
 
@@ -189,6 +196,8 @@ DMAnalysisTreeMaker::~DMAnalysisTreeMaker()
 
 void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+
 
   //-- modelo -----
   // edm::Handle< <column1> > handle_metPt; 
@@ -301,56 +310,9 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!handle_metPt.isValid()) return;
 
   const std::vector<float> metPt = *(handle_metPt.product());
-
-
-
-  // genPart
-  edm::Handle< std::vector<float> > handle_genPartCharge;      
-  edm::Handle< std::vector<float> > handle_genPartE     ;       
-  edm::Handle< std::vector<float> > handle_genPartEta   ;      
-  edm::Handle< std::vector<float> > handle_genPartID    ;      
-  edm::Handle< std::vector<float> > handle_genPartMass  ;
-  edm::Handle< std::vector<float> > handle_genPartMomID ;      
-  edm::Handle< std::vector<float> > handle_genPartPhi   ;      
-  edm::Handle< std::vector<float> > handle_genPartPt    ;      
-  edm::Handle< std::vector<float> > handle_genPartStatus;      
-  edm::Handle< std::vector<float> > handle_genPartY     ;      
-
-  iEvent.getByLabel(edm::InputTag("genPart","genPartCharge"), handle_genPartCharge);
-  iEvent.getByLabel(edm::InputTag("genPart","genPartE"     ), handle_genPartE     );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartEta"   ), handle_genPartEta   );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartID"    ), handle_genPartID    );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartMass"  ), handle_genPartMass  );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartMomID" ), handle_genPartMomID );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartPhi"   ), handle_genPartPhi   );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartPt"    ), handle_genPartPt    );
-  iEvent.getByLabel(edm::InputTag("genPart","genPartStatus"), handle_genPartStatus);
-  iEvent.getByLabel(edm::InputTag("genPart","genPartY"     ), handle_genPartY     );
-
-  if (!handle_genPartCharge.isValid()) return;
-  if (!handle_genPartE.isValid())      return;
-  if (!handle_genPartEta.isValid())    return;
-  if (!handle_genPartID.isValid())     return;
-  if (!handle_genPartMass.isValid())   return;
-  if (!handle_genPartMomID.isValid())  return;
-  if (!handle_genPartPhi.isValid())    return;
-  if (!handle_genPartPt.isValid())     return;
-  if (!handle_genPartStatus.isValid()) return;
-  if (!handle_genPartY.isValid())      return;
-
-  const std::vector<float> genPartCharge = *(handle_genPartCharge.product());
-  const std::vector<float> genPartE      = *(handle_genPartE.product()     );
-  const std::vector<float> genPartEta    = *(handle_genPartEta.product()   );
-  const std::vector<float> genPartID     = *(handle_genPartID.product()    );
-  const std::vector<float> genPartMass   = *(handle_genPartMass.product()  );
-  const std::vector<float> genPartMomID  = *(handle_genPartMomID.product() );
-  const std::vector<float> genPartPhi    = *(handle_genPartPhi.product()   );
-  const std::vector<float> genPartPt     = *(handle_genPartPt.product()    );
-  const std::vector<float> genPartStatus = *(handle_genPartStatus.product());
-  const std::vector<float> genPartY      = *(handle_genPartY.product()     );
+  
 
   // event shape definitions
-
   edm::Handle< double > handle_C_a          ;
   edm::Handle< double > handle_C_b          ;
   edm::Handle< double > handle_D_a          ;
@@ -415,9 +377,32 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const double thrust_b      = *(handle_thrust_b.product()     );
   const double centrality    = *(handle_centrality.product()   );
 
-  
-  // Tree variables
-  //t_muPt = new std::vector<float>;   // vectorial branch
+
+  //trigger
+  edm::Handle< std::vector<float> >       handle_triggerBitTree     ;
+  edm::Handle< std::vector<int> >         handle_triggerPrescaleTree;
+  edm::Handle< std::vector<std::string> > handle_triggerNameTree    ;
+
+  iEvent.getByLabel(edm::InputTag("TriggerUserData","triggerBitTree"     ), handle_triggerBitTree     );
+  iEvent.getByLabel(edm::InputTag("TriggerUserData","triggerPrescaleTree"), handle_triggerPrescaleTree);
+  iEvent.getByLabel(edm::InputTag("TriggerUserData","triggerNameTree"    ), handle_triggerNameTree    );
+
+  if (!handle_triggerBitTree.isValid())      return;
+  if (!handle_triggerPrescaleTree.isValid()) return;
+  if (!handle_triggerNameTree.isValid())     return;
+
+  const std::vector<float>       triggerBitTree      = *(handle_triggerBitTree.product()     );
+  const std::vector<int>         triggerPrescaleTree = *(handle_triggerPrescaleTree.product());
+  const std::vector<std::string> triggerNameTree     = *(handle_triggerNameTree.product()    );
+
+
+
+  // Tree variables   // vectorial branch
+
+  t_triggerBitTree      = new std::vector<float>      ;
+  t_triggerPrescaleTree = new std::vector<int>        ;
+  t_triggerNameTree     = new std::vector<std::string>;
+
 
 
 //---------------------------------------------------------------------------------- 
@@ -484,6 +469,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   int n_leptons = AnalysisLeptons.size(); 
+
   
 // Require exactly two leptons
 //--------------------------------------------------------------------------
@@ -504,7 +490,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 // Lepton Pair Selection
 //--------------------------------------------------------------------------
-  if ( n_leptons < 2 ) return;
+  if ( n_leptons < 2  ) return;
 
   bool opposite_charge = false;	
 
@@ -524,7 +510,9 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
   float m_ll = (lep1_tlv + lep2_tlv).M(); 
 
-  if ( m_ll < 20. ) return;
+  if ( m_ll < 20. ) return; 
+
+  printf(" -- 3 \n");
 
   //printf("invariant mass: %f \n", m_ll );
 
@@ -535,6 +523,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   //int metSize = metPt.size(); 
   //printf("met vector size is: %i \n", metSize );
 
+ 
 // Jet Selection
 //-------------------------------------------------------------------------- 
   std::vector<math::PtEtaPhiELorentzVector> SelectedJets; 
@@ -565,6 +554,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   int n_jet = SelectedJets.size(); 
 
 
+
 // Sort SelectedJets !!
 //---------------------------------------------------------------------------------- 
   //printf(" pt before: ");
@@ -576,6 +566,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   //for(int i = 0; i < n_jet; i++) printf( " %f \t", SelectedJets[i].Pt() );
   // printf("\n .................... \n");
 
+
   if( n_jet < 2) return;
 
   //  printf("number of jets = %i \n", n_jet); 
@@ -584,8 +575,59 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];   // comented at 8.vii
 
 
+
+
 // top generation variables
 // ------------------------
+
+  // genPart
+  edm::Handle< std::vector<float> > handle_genPartCharge;      
+  edm::Handle< std::vector<float> > handle_genPartE     ;       
+  edm::Handle< std::vector<float> > handle_genPartEta   ;      
+  edm::Handle< std::vector<float> > handle_genPartID    ;      
+  edm::Handle< std::vector<float> > handle_genPartMass  ;
+  edm::Handle< std::vector<float> > handle_genPartMomID ;      
+  edm::Handle< std::vector<float> > handle_genPartPhi   ;      
+  edm::Handle< std::vector<float> > handle_genPartPt    ;      
+  edm::Handle< std::vector<float> > handle_genPartStatus;      
+  edm::Handle< std::vector<float> > handle_genPartY     ;      
+
+if (readGen_) {
+
+  iEvent.getByLabel(edm::InputTag("genPart","genPartCharge"), handle_genPartCharge);
+  iEvent.getByLabel(edm::InputTag("genPart","genPartE"     ), handle_genPartE     );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartEta"   ), handle_genPartEta   );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartID"    ), handle_genPartID    );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartMass"  ), handle_genPartMass  );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartMomID" ), handle_genPartMomID );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartPhi"   ), handle_genPartPhi   );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartPt"    ), handle_genPartPt    );
+  iEvent.getByLabel(edm::InputTag("genPart","genPartStatus"), handle_genPartStatus);
+  iEvent.getByLabel(edm::InputTag("genPart","genPartY"     ), handle_genPartY     );
+
+  if (!handle_genPartCharge.isValid()) return;
+  if (!handle_genPartE.isValid())      return;
+  if (!handle_genPartEta.isValid())    return;
+  if (!handle_genPartID.isValid())     return;
+  if (!handle_genPartMass.isValid())   return;
+  if (!handle_genPartMomID.isValid())  return;
+  if (!handle_genPartPhi.isValid())    return;
+  if (!handle_genPartPt.isValid())     return;
+  if (!handle_genPartStatus.isValid()) return;
+  if (!handle_genPartY.isValid())      return;
+
+  const std::vector<float> genPartCharge = *(handle_genPartCharge.product());
+  const std::vector<float> genPartE      = *(handle_genPartE.product()     );
+  const std::vector<float> genPartEta    = *(handle_genPartEta.product()   );
+  const std::vector<float> genPartID     = *(handle_genPartID.product()    );
+  const std::vector<float> genPartMass   = *(handle_genPartMass.product()  );
+  const std::vector<float> genPartMomID  = *(handle_genPartMomID.product() );
+  const std::vector<float> genPartPhi    = *(handle_genPartPhi.product()   );
+  const std::vector<float> genPartPt     = *(handle_genPartPt.product()    );
+  const std::vector<float> genPartStatus = *(handle_genPartStatus.product());
+  const std::vector<float> genPartY      = *(handle_genPartY.product()     );
+
+
 
   float genTopPt  = 0 ;	
   float genTopPhi = 0 ;	
@@ -597,8 +639,21 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   float genAntiTopEta = 0;	
   float genAntiTopE   = 0;
 
+
   int genSize = genPartCharge.size();
 
+  //for ( int i = 0; i < genSize; i++) {
+
+  //	if( genPartID.at(i) == 6.0 ){
+
+  //		printf("%i \t %f \t %f  \t %f \t %f \t %f \t %f \n", i, genPartID.at(i), genPartStatus.at(i), genPartMass.at(i), genPartPt.at(i), genPartEta.at(i), genPartPhi.at(i)); 
+
+  //	}
+
+  //}
+
+  //printf("-----------\n");
+	
 
   for ( int i = 0; i < genSize; i++) {
 
@@ -635,9 +690,28 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 	
   }
 
-//printf("-----------\n");
+
+  t_genTopPt      = genTopPt     ;	
+  t_genTopPhi     = genTopPhi    ;	
+  t_genTopEta     = genTopEta    ;	
+  t_genTopE       = genTopE      ;	
+  t_genAntiTopPt  = genAntiTopPt ;	
+  t_genAntiTopPhi = genAntiTopPhi;	
+  t_genAntiTopEta = genAntiTopEta;	
+  t_genAntiTopE   = genAntiTopE  ;
 
 
+}   // end readGen
+
+  int triggerSize = triggerBitTree.size();
+
+  for ( int i = 0; i < triggerSize; i++ ) {
+
+	t_triggerBitTree      -> push_back(triggerBitTree.at(i)     );
+	t_triggerPrescaleTree -> push_back(triggerPrescaleTree.at(i));
+	t_triggerNameTree     -> push_back(triggerNameTree.at(i)    );
+
+  }
 
 
 
@@ -697,22 +771,15 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   t_thrust_b      = thrust_b     ;
   t_centrality    = centrality   ;
 
-  t_genTopPt      = genTopPt     ;	
-  t_genTopPhi     = genTopPhi    ;	
-  t_genTopEta     = genTopEta    ;	
-  t_genTopE       = genTopE      ;	
-  t_genAntiTopPt  = genAntiTopPt ;	
-  t_genAntiTopPhi = genAntiTopPhi;	
-  t_genAntiTopEta = genAntiTopEta;	
-  t_genAntiTopE   = genAntiTopE  ;
 
   if (1)
     {
       DMTree->Fill();
     }
 
-  //delete t_muPt;   // vectorial branch
-
+  delete t_triggerBitTree;
+  delete t_triggerPrescaleTree;
+  delete t_triggerNameTree;
 
 //---------------------------------------------------------------------------------- 
 
@@ -829,7 +896,10 @@ void DMAnalysisTreeMaker::beginJob()
   DMTree->Branch("t_thrust_a"     , &t_thrust_a     , "t_thrust_a/F"     );     
   DMTree->Branch("t_thrust_b"     , &t_thrust_b     , "t_thrust_b/F"     );     
   DMTree->Branch("t_centrality"   , &t_centrality   , "t_centrality/F"   );   
-  
+
+
+if (readGen_) {  
+
   DMTree->Branch("t_genTopPt"     , &t_genTopPt     , "t_genTopPt/F"      ); 
   DMTree->Branch("t_genTopPhi"    , &t_genTopPhi    , "t_genTopPhi/F"     ); 
   DMTree->Branch("t_genTopEta"    , &t_genTopEta    , "t_genTopEta/F"     ); 
@@ -838,6 +908,12 @@ void DMAnalysisTreeMaker::beginJob()
   DMTree->Branch("t_genAntiTopPhi", &t_genAntiTopPhi, "t_genAntiTopPhi/F" ); 
   DMTree->Branch("t_genAntiTopEta", &t_genAntiTopEta, "t_genAntiTopEta/F" ); 
   DMTree->Branch("t_genAntiTopE"  , &t_genAntiTopE  , "t_genAntiTopE/F"   ); 
+
+}
+
+  DMTree->Branch( "t_triggerBitTree",      "std::vector<float>",       &t_triggerBitTree      );
+  DMTree->Branch( "t_triggerPrescaleTree", "std::vector<int>",         &t_triggerPrescaleTree );
+  DMTree->Branch( "t_triggerNameTree",     "std::vector<std::string>", &t_triggerNameTree     );
 
   //DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);   // vectorial branch
  
