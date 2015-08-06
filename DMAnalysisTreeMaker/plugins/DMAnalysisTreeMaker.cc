@@ -401,11 +401,14 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
   // LHE
-  //edm::Handle< LHEEventProduct > handle_LHE; 
-  //iEvent.getByLabel(edm::InputTag("externalLHEProducer",""), handle_LHE);
-  //if (!handle_LHE.isValid()) return;
-  //const LHEEventProduct LHE = *(handle_LHE.product());
+  edm::Handle< LHEEventProduct > handle_LHE; 
+  iEvent.getByLabel(edm::InputTag("externalLHEProducer"), handle_LHE);
+  if (handle_LHE.isValid()) {
+    float weightsign    = handle_LHE->hepeup().XWGTUP;
+    float LHEWeightSign = weightsign / fabs(weightsign);
 
+    printf(" weightsign = %f \t LHEWeightSign = %.0f\n", weightsign, LHEWeightSign);
+  }
 
 
 
@@ -439,9 +442,10 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
 	int size1 = METBitTree.size();
-
+	
 	for ( int i = 0; i < size1; i++) {
-		//printf("%i -- %s \n", i, METNameTree.at(i));
+	  TString metname = METNameTree.at(i);
+	  printf("%i -- %s \n", i, metname.Data());
 	}
 
 
