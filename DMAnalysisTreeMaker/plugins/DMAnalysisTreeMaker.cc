@@ -33,6 +33,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h" 
 #include "Math/GenVector/VectorUtil.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 
 class DMAnalysisTreeMaker : public edm::EDAnalyzer {
 public:
@@ -397,6 +399,57 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
 
+
+  // LHE
+  //edm::Handle< LHEEventProduct > handle_LHE; 
+  //iEvent.getByLabel(edm::InputTag("externalLHEProducer",""), handle_LHE);
+  //if (!handle_LHE.isValid()) return;
+  //const LHEEventProduct LHE = *(handle_LHE.product());
+
+
+
+
+
+
+
+  // filter
+  //edm::Handle< bool > handle_HBHENoiseFilterResultRun2Tight;     
+  //iEvent.getByLabel(edm::InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"), handle_HBHENoiseFilterResultRun2Tight);
+  //if (!handle_HBHENoiseFilterResultRun2Tight.isValid()) return;
+  //const bool HBHENoiseFilterResultRun2Tight = *(handle_HBHENoiseFilterResultRun2Tight.product());
+
+  //printf( "%d \n", HBHENoiseFilterResultRun2Tight );
+
+
+
+
+
+
+  edm::Handle< std::vector<float> >       handle_METBitTree     ;
+  edm::Handle< std::vector<std::string> > handle_METNameTree    ;
+
+  iEvent.getByLabel(edm::InputTag("METUserData","triggerBitTree"     ), handle_METBitTree     );
+  iEvent.getByLabel(edm::InputTag("METUserData","triggerNameTree"    ), handle_METNameTree    );
+
+  if (!handle_METBitTree.isValid())      return;
+  if (!handle_METNameTree.isValid())     return;
+
+  const std::vector<float>       METBitTree      = *(handle_METBitTree.product()     );
+  const std::vector<std::string> METNameTree     = *(handle_METNameTree.product()    );
+
+
+	int size1 = METBitTree.size();
+
+	for ( int i = 0; i < size1; i++) {
+		//printf("%i -- %s \n", i, METNameTree.at(i));
+	}
+
+
+
+
+
+
+
   // Tree variables   // vectorial branch
 
   t_triggerBitTree      = new std::vector<float>      ;
@@ -710,6 +763,8 @@ if (readGen_) {
 	t_triggerBitTree      -> push_back(triggerBitTree.at(i)     );
 	t_triggerPrescaleTree -> push_back(triggerPrescaleTree.at(i));
 	t_triggerNameTree     -> push_back(triggerNameTree.at(i)    );
+
+	//printf("%i \t %s \n", i, triggerNameTree.at(i));
 
   }
 
