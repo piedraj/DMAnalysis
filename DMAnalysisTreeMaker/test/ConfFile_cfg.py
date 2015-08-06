@@ -16,8 +16,8 @@ process.TFileService = cms.Service("TFileService",
 
 process.source = cms.Source(
     "PoolSource",
-### fileNames = cms.untracked.vstring('file:/gpfs/csic_projects/cms/jgarciaf/B2G/B2GEDMNtuple_10.root')   # muestra de juguete
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/p/piedra/public/forB2G/B2GEDMNtuple_1.root')   # muestra de juguete
+    fileNames = cms.untracked.vstring('file:/gpfs/csic_projects/cms/jgarciaf/B2G/B2GEDMNtuple_10.root')   # muestra de juguete
+### fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/p/piedra/public/forB2G/B2GEDMNtuple_1.root')   # muestra de juguete
     )
 
 process.demo = cms.EDAnalyzer('DMAnalysisTreeMaker',
