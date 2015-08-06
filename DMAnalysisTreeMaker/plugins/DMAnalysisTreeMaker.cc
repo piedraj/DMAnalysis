@@ -130,6 +130,16 @@ private:
   std::vector<int>         *t_triggerPrescaleTree;
   std::vector<std::string> *t_triggerNameTree;
 
+  // negative weights
+  float t_LHEWeightSign; 
+
+  // filters
+  std::vector<float>       *t_METBitTree;
+  std::vector<std::string> *t_METNameTree;
+  bool t_HBHENoiseFilterResultRun1;
+
+  
+
 //-----   histos   ------------------------------------------
 
 /*  TH1F* h_MET_all_01           ;
@@ -399,33 +409,22 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
 
-
   // LHE
   edm::Handle< LHEEventProduct > handle_LHE; 
   iEvent.getByLabel(edm::InputTag("externalLHEProducer"), handle_LHE);
-  if (handle_LHE.isValid()) {
-    float weightsign    = handle_LHE->hepeup().XWGTUP;
-    float LHEWeightSign = weightsign / fabs(weightsign);
-
-    printf(" weightsign = %f \t LHEWeightSign = %.0f\n", weightsign, LHEWeightSign);
-  }
+  if (handle_LHE.isValid()) return;
+  float weightsign    = handle_LHE->hepeup().XWGTUP;
+  float LHEWeightSign = weightsign / fabs(weightsign);
 
 
 
 
+  // filters
 
-
-  // filter
-  //edm::Handle< bool > handle_HBHENoiseFilterResultRun2Tight;     
-  //iEvent.getByLabel(edm::InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"), handle_HBHENoiseFilterResultRun2Tight);
-  //if (!handle_HBHENoiseFilterResultRun2Tight.isValid()) return;
-  //const bool HBHENoiseFilterResultRun2Tight = *(handle_HBHENoiseFilterResultRun2Tight.product());
-
-  //printf( "%d \n", HBHENoiseFilterResultRun2Tight );
-
-
-
-
+  edm::Handle< bool > handle_HBHENoiseFilterResultRun1;     
+  iEvent.getByLabel(edm::InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun1"), handle_HBHENoiseFilterResultRun1);
+  if (!handle_HBHENoiseFilterResultRun1.isValid()) return;
+  const bool HBHENoiseFilterResultRun1 = *(handle_HBHENoiseFilterResultRun1.product());
 
 
   edm::Handle< std::vector<float> >       handle_METBitTree     ;
@@ -440,16 +439,12 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<float>       METBitTree      = *(handle_METBitTree.product()     );
   const std::vector<std::string> METNameTree     = *(handle_METNameTree.product()    );
 
+  //int size1 = METBitTree.size();
 
-	int size1 = METBitTree.size();
-	
-	for ( int i = 0; i < size1; i++) {
-	  TString metname = METNameTree.at(i);
-	  printf("%i -- %s \n", i, metname.Data());
-	}
-
-
-
+  //for ( int i = 0; i < size1; i++) {
+  //   TString metname = METNameTree.at(i);
+  //   if ( METBitTree.at(i) != 1. ) printf("%i -- %s \n", i, metname.Data());
+  //}
 
 
 
@@ -459,6 +454,9 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   t_triggerBitTree      = new std::vector<float>      ;
   t_triggerPrescaleTree = new std::vector<int>        ;
   t_triggerNameTree     = new std::vector<std::string>;
+
+  t_METBitTree      = new std::vector<float>      ;
+  t_METNameTree     = new std::vector<std::string>;
 
 
 
@@ -772,6 +770,15 @@ if (readGen_) {
 
   }
 
+  int METSize = METBitTree.size();
+
+  for ( int i = 0; i < METSize; i++ ) {
+
+	t_triggerBitTree      -> push_back(METBitTree.at(i)     );
+	t_triggerNameTree     -> push_back(METNameTree.at(i)    );
+
+  }
+
 
 
 // channel assignment
@@ -830,6 +837,10 @@ if (readGen_) {
   t_thrust_b      = thrust_b     ;
   t_centrality    = centrality   ;
 
+  t_LHEWeightSign = LHEWeightSign;
+
+  t_HBHENoiseFilterResultRun1 = HBHENoiseFilterResultRun1;
+
 
   if (1)
     {
@@ -840,6 +851,8 @@ if (readGen_) {
   delete t_triggerPrescaleTree;
   delete t_triggerNameTree;
 
+  delete t_METBitTree;
+  delete t_METNameTree;
 //---------------------------------------------------------------------------------- 
 
 
@@ -919,7 +932,8 @@ void DMAnalysisTreeMaker::beginJob()
 
   DMTree->Branch("t_ch", &t_ch, "t_ch");
   
-  DMTree->Branch("t_lep1Pt" , &t_lep1Pt , "t_lep1Pt/F" );
+
+
   DMTree->Branch("t_lep1Eta", &t_lep1Eta, "t_lep1Eta/F"); 
   DMTree->Branch("t_lep1Phi", &t_lep1Phi, "t_lep1Phi/F"); 
   DMTree->Branch("t_lep1E"  , &t_lep1E  , "t_lep1E/F"  ); 
@@ -973,6 +987,13 @@ if (readGen_) {
   DMTree->Branch( "t_triggerBitTree",      "std::vector<float>",       &t_triggerBitTree      );
   DMTree->Branch( "t_triggerPrescaleTree", "std::vector<int>",         &t_triggerPrescaleTree );
   DMTree->Branch( "t_triggerNameTree",     "std::vector<std::string>", &t_triggerNameTree     );
+
+  DMTree->Branch("t_LHEWeightSign" , &t_LHEWeightSign , "t_LHEWeightSign/F" );
+
+  DMTree->Branch( "t_METBitTree",      "std::vector<float>",       &t_METBitTree      );
+  DMTree->Branch( "t_METNameTree",     "std::vector<std::string>", &t_METNameTree     );
+
+  DMTree->Branch("t_HBHENoiseFilterResultRun1" , &t_HBHENoiseFilterResultRun1 , "t_HBHENoiseFilterResultRun1/F");
 
   //DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);   // vectorial branch
  
