@@ -410,7 +410,6 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<std::string> triggerNameTree     = *(handle_triggerNameTree.product()    );
 
 
-printf("hola holita \n");
 
   // filters
 
@@ -419,7 +418,7 @@ printf("hola holita \n");
   if (!handle_HBHENoiseFilterResultRun1.isValid()) return;
   const bool HBHENoiseFilterResultRun1 = *(handle_HBHENoiseFilterResultRun1.product());
 
-printf("hola holita 2 \n");
+
  
  //-----------
 
@@ -441,9 +440,6 @@ printf("hola holita 2 \n");
   //   TString metname = METNameTree.at(i);
   //   if ( METBitTree.at(i) != 1. ) printf("%i -- %s \n", i, metname.Data());
   //}
-
-printf("hola holita 3 \n");
-
 
 
   // Tree variables   // vectorial branch
@@ -542,7 +538,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 // Lepton Pair Selection
 //--------------------------------------------------------------------------
-  if ( n_leptons < 2  ) return;
+  if ( n_leptons < 1  ) return;
 
   bool opposite_charge = false;	
 
@@ -564,7 +560,6 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
   if ( m_ll < 20. ) return; 
 
-  printf(" -- 3 \n");
 
   //printf("invariant mass: %f \n", m_ll );
 
@@ -625,8 +620,6 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
   math::PtEtaPhiELorentzVector jet1_tlv = SelectedJets[0];   // comented at 8.vii
   math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];   // comented at 8.vii
-
-
 
 
 // top generation variables
@@ -762,10 +755,14 @@ if (readGen_) {
 
   edm::Handle< LHEEventProduct > handle_LHE; 
 
+printf("pre- \n");
+
 if (weight_) {
 
-  iEvent.getByLabel(edm::InputTag("externalLHEProducer"), handle_LHE);
-  if (handle_LHE.isValid()) return;
+  iEvent.getByLabel(edm::InputTag("externalLHEProducer", ""), handle_LHE);
+printf("inside loop \n");
+  if (!handle_LHE.isValid()) return;
+printf("inside loop 2\n");
   float weightsign    = handle_LHE->hepeup().XWGTUP;
   float LHEWeightSign = weightsign / fabs(weightsign);
 
@@ -773,6 +770,7 @@ if (weight_) {
 
 }  // end weight
 
+printf("post \n");
 
 
 
