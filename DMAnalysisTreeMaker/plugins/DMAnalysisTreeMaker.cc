@@ -53,6 +53,7 @@ private:
  // Data members
 
  bool readGen_;
+ bool weight_;
 
 //-----   branches   ----------------------------------------
 
@@ -195,7 +196,8 @@ bool myfunction (math::PtEtaPhiELorentzVector v1, math::PtEtaPhiELorentzVector v
 
 
 DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig) :
-readGen_ (iConfig.getUntrackedParameter<bool>("readGen", false))
+readGen_ (iConfig.getUntrackedParameter<bool>("readGen", false)), 
+weight_  (iConfig.getUntrackedParameter<bool>("weight" , false))
 {
 
 }
@@ -408,16 +410,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<std::string> triggerNameTree     = *(handle_triggerNameTree.product()    );
 
 
-
-  // LHE
-  edm::Handle< LHEEventProduct > handle_LHE; 
-  iEvent.getByLabel(edm::InputTag("externalLHEProducer"), handle_LHE);
-  if (handle_LHE.isValid()) return;
-  float weightsign    = handle_LHE->hepeup().XWGTUP;
-  float LHEWeightSign = weightsign / fabs(weightsign);
-
-
-
+printf("hola holita \n");
 
   // filters
 
@@ -426,6 +419,9 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!handle_HBHENoiseFilterResultRun1.isValid()) return;
   const bool HBHENoiseFilterResultRun1 = *(handle_HBHENoiseFilterResultRun1.product());
 
+printf("hola holita 2 \n");
+ 
+ //-----------
 
   edm::Handle< std::vector<float> >       handle_METBitTree     ;
   edm::Handle< std::vector<std::string> > handle_METNameTree    ;
@@ -446,6 +442,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   //   if ( METBitTree.at(i) != 1. ) printf("%i -- %s \n", i, metname.Data());
   //}
 
+printf("hola holita 3 \n");
 
 
 
@@ -758,6 +755,27 @@ if (readGen_) {
 
 }   // end readGen
 
+
+
+
+// ----- negative weights ----------------------------
+
+  edm::Handle< LHEEventProduct > handle_LHE; 
+
+if (weight_) {
+
+  iEvent.getByLabel(edm::InputTag("externalLHEProducer"), handle_LHE);
+  if (handle_LHE.isValid()) return;
+  float weightsign    = handle_LHE->hepeup().XWGTUP;
+  float LHEWeightSign = weightsign / fabs(weightsign);
+
+  t_LHEWeightSign = LHEWeightSign;
+
+}  // end weight
+
+
+
+
   int triggerSize = triggerBitTree.size();
 
   for ( int i = 0; i < triggerSize; i++ ) {
@@ -836,8 +854,6 @@ if (readGen_) {
   t_thrust_a      = thrust_a     ;
   t_thrust_b      = thrust_b     ;
   t_centrality    = centrality   ;
-
-  t_LHEWeightSign = LHEWeightSign;
 
   t_HBHENoiseFilterResultRun1 = HBHENoiseFilterResultRun1;
 
@@ -972,7 +988,6 @@ void DMAnalysisTreeMaker::beginJob()
 
 
 if (readGen_) {  
-
   DMTree->Branch("t_genTopPt"     , &t_genTopPt     , "t_genTopPt/F"      ); 
   DMTree->Branch("t_genTopPhi"    , &t_genTopPhi    , "t_genTopPhi/F"     ); 
   DMTree->Branch("t_genTopEta"    , &t_genTopEta    , "t_genTopEta/F"     ); 
@@ -981,14 +996,15 @@ if (readGen_) {
   DMTree->Branch("t_genAntiTopPhi", &t_genAntiTopPhi, "t_genAntiTopPhi/F" ); 
   DMTree->Branch("t_genAntiTopEta", &t_genAntiTopEta, "t_genAntiTopEta/F" ); 
   DMTree->Branch("t_genAntiTopE"  , &t_genAntiTopE  , "t_genAntiTopE/F"   ); 
-
 }
 
   DMTree->Branch( "t_triggerBitTree",      "std::vector<float>",       &t_triggerBitTree      );
   DMTree->Branch( "t_triggerPrescaleTree", "std::vector<int>",         &t_triggerPrescaleTree );
   DMTree->Branch( "t_triggerNameTree",     "std::vector<std::string>", &t_triggerNameTree     );
 
+if (weight_) { 
   DMTree->Branch("t_LHEWeightSign" , &t_LHEWeightSign , "t_LHEWeightSign/F" );
+}
 
   DMTree->Branch( "t_METBitTree",      "std::vector<float>",       &t_METBitTree      );
   DMTree->Branch( "t_METNameTree",     "std::vector<std::string>", &t_METNameTree     );
