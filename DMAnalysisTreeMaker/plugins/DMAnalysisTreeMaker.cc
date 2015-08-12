@@ -53,7 +53,7 @@ private:
  // Data members
 
  bool readGen_;
- bool weight_;
+ bool readLHEEventProducer_;
 
 //-----   branches   ----------------------------------------
 
@@ -143,6 +143,8 @@ private:
 
 //-----   histos   ------------------------------------------
 
+//TH1F* Orso;
+
 /*  TH1F* h_MET_all_01           ;
   TH1F* h_JetPt_all_01         ; 
   TH1F* h_LeptonPt_all_01      ;  
@@ -197,7 +199,7 @@ bool myfunction (math::PtEtaPhiELorentzVector v1, math::PtEtaPhiELorentzVector v
 
 DMAnalysisTreeMaker::DMAnalysisTreeMaker(const edm::ParameterSet& iConfig) :
 readGen_ (iConfig.getUntrackedParameter<bool>("readGen", false)), 
-weight_  (iConfig.getUntrackedParameter<bool>("weight" , false))
+readLHEEventProducer_ (iConfig.getUntrackedParameter<bool>("readLHEEventProducer" , false))
 {
 
 }
@@ -538,7 +540,7 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 
 // Lepton Pair Selection
 //--------------------------------------------------------------------------
-  if ( n_leptons < 1  ) return;
+  if ( n_leptons < 2  ) return;
 
   bool opposite_charge = false;	
 
@@ -755,14 +757,14 @@ if (readGen_) {
 
   edm::Handle< LHEEventProduct > handle_LHE; 
 
-printf("pre- \n");
+//printf("pre- \n");
 
-if (weight_) {
+if (readLHEEventProducer_) {
 
   iEvent.getByLabel(edm::InputTag("externalLHEProducer", ""), handle_LHE);
-printf("inside loop \n");
+//printf("inside loop \n");
   if (!handle_LHE.isValid()) return;
-printf("inside loop 2\n");
+//printf("inside loop 2\n");
   float weightsign    = handle_LHE->hepeup().XWGTUP;
   float LHEWeightSign = weightsign / fabs(weightsign);
 
@@ -770,7 +772,7 @@ printf("inside loop 2\n");
 
 }  // end weight
 
-printf("post \n");
+//printf("post \n");
 
 
 
@@ -1000,7 +1002,7 @@ if (readGen_) {
   DMTree->Branch( "t_triggerPrescaleTree", "std::vector<int>",         &t_triggerPrescaleTree );
   DMTree->Branch( "t_triggerNameTree",     "std::vector<std::string>", &t_triggerNameTree     );
 
-if (weight_) { 
+if (readLHEEventProducer_) { 
   DMTree->Branch("t_LHEWeightSign" , &t_LHEWeightSign , "t_LHEWeightSign/F" );
 }
 

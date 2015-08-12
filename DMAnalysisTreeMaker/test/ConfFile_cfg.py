@@ -4,11 +4,11 @@ process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))   # correr sobre los 100 primeros sucesos
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))   # correr sobre los 100 primeros sucesos
 
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000   # report poc pantalla cada x sucesos
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000   # report por pantalla cada x sucesos
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("DM.root"),
@@ -25,7 +25,7 @@ process.demo = cms.EDAnalyzer('DMAnalysisTreeMaker',
 )
 
 process.demo = cms.EDAnalyzer('DMAnalysisTreeMaker',
-			      weight = cms.untracked.bool(True)   # negative weights vs normal weights
+			      readLHEEventProducer = cms.untracked.bool(False)   # negative weights vs normal weights
 )
 
 process.p = cms.Path(process.demo)
