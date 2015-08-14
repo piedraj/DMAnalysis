@@ -436,12 +436,14 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<float>       METBitTree      = *(handle_METBitTree.product()     );
   const std::vector<std::string> METNameTree     = *(handle_METNameTree.product()    );
 
-  //int size1 = METBitTree.size();
-
-  //for ( int i = 0; i < size1; i++) {
-  //   TString metname = METNameTree.at(i);
-  //   if ( METBitTree.at(i) != 1. ) printf("%i -- %s \n", i, metname.Data());
-  //}
+  int size1 = METBitTree.size();
+  printf("--------");
+  for ( int i = 0; i < size1; i++) {
+     //TString metname = METNameTree.at(i);
+     //if ( METBitTree.at(i) != 1. ) 
+     //printf("%i -- %s \n", i, metname.Data());
+     printf("%f \n", METBitTree.at(i));
+  }
 
 
   // Tree variables   // vectorial branch
@@ -948,8 +950,7 @@ void DMAnalysisTreeMaker::beginJob()
 
   DMTree->Branch("t_ch", &t_ch, "t_ch");
   
-
-
+  DMTree->Branch("t_lep1Pt" , &t_lep1Pt , "t_lep1Pt/F" );  
   DMTree->Branch("t_lep1Eta", &t_lep1Eta, "t_lep1Eta/F"); 
   DMTree->Branch("t_lep1Phi", &t_lep1Phi, "t_lep1Phi/F"); 
   DMTree->Branch("t_lep1E"  , &t_lep1E  , "t_lep1E/F"  ); 
