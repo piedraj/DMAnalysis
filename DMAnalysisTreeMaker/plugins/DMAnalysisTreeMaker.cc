@@ -326,7 +326,32 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!handle_metPt.isValid()) return;
 
   const std::vector<float> metPt = *(handle_metPt.product());
+
+  printf("hola 1 \n");
   
+  // eventInfo
+
+  edm::Handle<ULong64_t>      handle_evtInfoEventNumber;
+  edm::Handle< unsigned int > handle_evtInfoLumiBlock  ;
+  edm::Handle< unsigned int > handle_evtInfoRunNumber  ;
+
+  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoEventNumber"), handle_evtInfoEventNumber);
+  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoLumiBlock"  ), handle_evtInfoLumiBlock  );
+  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoRunNumber"  ), handle_evtInfoRunNumber  );
+
+  if (!handle_evtInfoEventNumber.isValid()) return;
+  if (!handle_evtInfoLumiBlock.isValid()  ) return;
+  if (!handle_evtInfoRunNumber.isValid()  ) return;
+
+  const ULong64_t    evtInfoEventNumber = *(handle_evtInfoEventNumber.product()); 
+  const unsigned int evtInfoLumiBlock   = *(handle_evtInfoLumiBlock.product()); 
+  const unsigned int evtInfoRunNumber   = *(handle_evtInfoRunNumber.product());
+
+  printf("hola 2 \n");
+
+  printf("evt \t %lld \n", evtInfoEventNumber); 
+  printf("evt \t %i   \n", evtInfoLumiBlock  ); 
+  printf("evt \t %i   \n", evtInfoRunNumber  ); 
 
   // event shape definitions
   edm::Handle< double > handle_C_a          ;
@@ -436,14 +461,25 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   const std::vector<float>       METBitTree      = *(handle_METBitTree.product()     );
   const std::vector<std::string> METNameTree     = *(handle_METNameTree.product()    );
 
-  int size1 = METBitTree.size();
-  printf("--------");
-  for ( int i = 0; i < size1; i++) {
-     //TString metname = METNameTree.at(i);
-     //if ( METBitTree.at(i) != 1. ) 
-     //printf("%i -- %s \n", i, metname.Data());
-     printf("%f \n", METBitTree.at(i));
-  }
+  //int size1 = METBitTree.size();
+  //printf("--------");
+  //for ( int i = 0; i < size1; i++) {
+  //   TString metname = METNameTree.at(i);
+  //   if ( METBitTree.at(i) != 1. ) 
+  //   printf("%i -- %s \n", i, metname.Data());
+  //   printf("%f \n", METBitTree.at(i));
+  //}
+
+
+  //int size1 = triggerBitTree.size();
+  //printf("-------- \n");
+  //for ( int i = 0; i < size1; i++) {
+  //   TString triggername = triggerNameTree.at(i);
+  //   if ( triggerBitTree.at(i) == 1. ) printf("%i -- %s \n", i, triggername.Data());
+  //   printf("%f \n", triggerBitTree.at(i));
+  //}
+
+
 
 
   // Tree variables   // vectorial branch
