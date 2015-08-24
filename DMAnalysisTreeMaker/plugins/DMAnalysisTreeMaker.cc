@@ -139,6 +139,10 @@ private:
   std::vector<std::string> *t_METNameTree;
   bool t_HBHENoiseFilterResultRun1;
 
+  // event info
+  int t_eventNumber;
+  int t_runNumber  ;
+  int t_lumiBlock  ;
   
 
 //-----   histos   ------------------------------------------
@@ -326,32 +330,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!handle_metPt.isValid()) return;
 
   const std::vector<float> metPt = *(handle_metPt.product());
-
-  printf("hola 1 \n");
   
-  // eventInfo
-
-  edm::Handle<ULong64_t>      handle_evtInfoEventNumber;
-  edm::Handle< unsigned int > handle_evtInfoLumiBlock  ;
-  edm::Handle< unsigned int > handle_evtInfoRunNumber  ;
-
-  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoEventNumber"), handle_evtInfoEventNumber);
-  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoLumiBlock"  ), handle_evtInfoLumiBlock  );
-  iEvent.getByLabel(edm::InputTag("eventInfo","evtInfoRunNumber"  ), handle_evtInfoRunNumber  );
-
-  if (!handle_evtInfoEventNumber.isValid()) return;
-  if (!handle_evtInfoLumiBlock.isValid()  ) return;
-  if (!handle_evtInfoRunNumber.isValid()  ) return;
-
-  const ULong64_t    evtInfoEventNumber = *(handle_evtInfoEventNumber.product()); 
-  const unsigned int evtInfoLumiBlock   = *(handle_evtInfoLumiBlock.product()); 
-  const unsigned int evtInfoRunNumber   = *(handle_evtInfoRunNumber.product());
-
-  printf("hola 2 \n");
-
-  printf("evt \t %lld \n", evtInfoEventNumber); 
-  printf("evt \t %i   \n", evtInfoLumiBlock  ); 
-  printf("evt \t %i   \n", evtInfoRunNumber  ); 
 
   // event shape definitions
   edm::Handle< double > handle_C_a          ;
@@ -830,8 +809,8 @@ if (readLHEEventProducer_) {
 
   for ( int i = 0; i < METSize; i++ ) {
 
-	t_triggerBitTree      -> push_back(METBitTree.at(i)     );
-	t_triggerNameTree     -> push_back(METNameTree.at(i)    );
+	t_METBitTree      -> push_back(METBitTree.at(i)     );
+	t_METNameTree     -> push_back(METNameTree.at(i)    );
 
   }
 
@@ -894,6 +873,16 @@ if (readLHEEventProducer_) {
   t_centrality    = centrality   ;
 
   t_HBHENoiseFilterResultRun1 = HBHENoiseFilterResultRun1;
+
+
+  t_eventNumber = iEvent.id().event()     ;
+  t_runNumber   = iEvent.id().run()       ;
+  t_lumiBlock   = iEvent.luminosityBlock();
+
+  /*printf("%lld \n", iEvent.id().event()       );
+  printf("%i   \n", iEvent.luminosityBlock()  ); 
+  printf("%i   \n", iEvent.id().run()         );*/
+
 
 
   if (1)
@@ -1047,6 +1036,11 @@ if (readLHEEventProducer_) {
   DMTree->Branch( "t_METNameTree",     "std::vector<std::string>", &t_METNameTree     );
 
   DMTree->Branch("t_HBHENoiseFilterResultRun1" , &t_HBHENoiseFilterResultRun1 , "t_HBHENoiseFilterResultRun1/F");
+
+  DMTree->Branch("t_eventNumber" , &t_eventNumber , "t_eventNumber/I");
+  DMTree->Branch("t_runNumber"   , &t_runNumber   , "t_runNumber/I");
+  DMTree->Branch("t_lumiBlock"   , &t_lumiBlock   , "t_lumiBlock/I");
+
 
   //DMTree->Branch("t_muPt",  "std::vector<float>", &t_muPt);   // vectorial branch
  
