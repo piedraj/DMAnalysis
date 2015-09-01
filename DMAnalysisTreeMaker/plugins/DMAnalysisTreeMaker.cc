@@ -62,30 +62,40 @@ private:
   float t_metPt;
 
   // leptons
+  int t_nLept;
+
   float t_ch; 
 
   float t_lep1Pt ;
   float t_lep1Eta;
   float t_lep1Phi;
   float t_lep1E  ;
+  int   t_lep1Flv;
 
   float t_lep2Pt ;
   float t_lep2Eta;
   float t_lep2Phi;
   float t_lep2E  ;
+  int   t_lep2Flv;
 
   float t_dilepInvMass;
 
   // jets
-  float t_jet1Pt ;
-  float t_jet1Eta;
-  float t_jet1Phi;
-  float t_jet1E  ;
+  float t_nJet   ; 
+  //float t_jet1Pt ;
+  //float t_jet1Eta;
+  //float t_jet1Phi;
+  //float t_jet1E  ;
 
-  float t_jet2Pt ;
-  float t_jet2Eta;
-  float t_jet2Phi;
-  float t_jet2E  ;
+  //float t_jet2Pt ;
+  //float t_jet2Eta;
+  //float t_jet2Phi;
+  //float t_jet2E  ;
+
+  std::vector<float> *t_jetPt ;
+  std::vector<float> *t_jetEta;
+  std::vector<float> *t_jetPhi;
+  std::vector<float> *t_jetE  ;
 
   // event shape definitions
   float t_C_a          ;
@@ -178,7 +188,7 @@ enum {Electron=1, Muon=2};
 
 struct Lepton
 {
-  UInt_t Flavor;
+  int    Flavor;
   float  Charge;
   float  Pt;
   float	 Eta;
@@ -463,14 +473,17 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // Tree variables   // vectorial branch
 
+  t_jetPt  = new std::vector<float>;
+  t_jetEta = new std::vector<float>;
+  t_jetPhi = new std::vector<float>;
+  t_jetE   = new std::vector<float>;
+
   t_triggerBitTree      = new std::vector<float>      ;
   t_triggerPrescaleTree = new std::vector<int>        ;
   t_triggerNameTree     = new std::vector<std::string>;
 
   t_METBitTree      = new std::vector<float>      ;
   t_METNameTree     = new std::vector<std::string>;
-
-
 
 //---------------------------------------------------------------------------------- 
 
@@ -481,13 +494,17 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 	if ( elisMedium.at(i) != 1.0 ) continue;   // id
 
-	if ( elIso03.at(i) > 0.11 ) continue;   // iso
+	if ( elIso03.at(i) > 0.11    ) continue;   // iso
+
+	if ( elPt.at(i) < 20         ) continue;   // pT
+
+	if ( elEta.at(i) > 2.4       ) continue;   // eta
 
 	//printf("elIso03 = %f \t elPt = %f \n", elIso03.at(i), elPt.at(i));
 
  	Lepton elec;
 
-	elec.Flavor = Electron;
+	elec.Flavor = 1;
 
 	elec.Charge = elCharge.at(i);
 
@@ -513,7 +530,11 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 	if ( muIsTightMuon.at(i) != 1.0 ) continue;   // id 
 
-	if ( muIso04.at(i) > 0.12 ) continue;   // iso
+	if ( muIso04.at(i) > 0.12       ) continue;   // iso
+
+	if ( muPt.at(i) < 20            ) continue;   // pT
+
+	if ( muEta.at(i) > 2.4          ) continue;   // eta
 
  	Lepton muon;
 
@@ -633,12 +654,25 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
   // printf("\n .................... \n");
 
 
-  if( n_jet < 2) return;
+  //if( n_jet < 2) return;
 
   //  printf("number of jets = %i \n", n_jet); 
 
-  math::PtEtaPhiELorentzVector jet1_tlv = SelectedJets[0];   // comented at 8.vii
-  math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];   // comented at 8.vii
+  //math::PtEtaPhiELorentzVector jet1_tlv = SelectedJets[0];   
+  //math::PtEtaPhiELorentzVector jet2_tlv = SelectedJets[1];   
+
+
+  for ( int i = 0; i < n_jet; i++ ) {
+
+	t_jetPt  -> push_back( jetAK4Pt.at(i)  );
+	t_jetEta -> push_back( jetAK4Eta.at(i) );
+	t_jetPhi -> push_back( jetAK4Phi.at(i) );
+	t_jetE   -> push_back( jetAK4E.at(i)   );
+
+  }  
+
+
+
 
 
 // top generation variables
@@ -834,19 +868,24 @@ if (readLHEEventProducer_) {
 
   t_ch = ch;
 
-  t_lep1Pt  = lep1.Pt ;
-  t_lep1Eta = lep1.Eta;
-  t_lep1Phi = lep1.Phi;
-  t_lep1E   = lep1.E  ;
+  t_nLept   = n_leptons; 
+  t_lep1Pt  = lep1.Pt  ;
+  t_lep1Eta = lep1.Eta ;
+  t_lep1Phi = lep1.Phi ;
+  t_lep1E   = lep1.E   ;
+  t_lep1Flv = lep1.Flavor;
 
   t_lep2Pt  = lep2.Pt ;
   t_lep2Eta = lep2.Eta;
   t_lep2Phi = lep2.Phi;
   t_lep2E   = lep2.E  ;
+  t_lep2Flv = lep2.Flavor;
 
   t_dilepInvMass = m_ll;
 
-  t_jet1Pt  = jet1_tlv.Pt() ;
+  t_nJet    = n_jet; 
+
+  /*t_jet1Pt  = jet1_tlv.Pt() ;
   t_jet1Eta = jet1_tlv.Eta();
   t_jet1Phi = jet1_tlv.Phi();
   t_jet1E   = jet1_tlv.E()  ;
@@ -854,7 +893,7 @@ if (readLHEEventProducer_) {
   t_jet2Pt  = jet2_tlv.Pt() ;
   t_jet2Eta = jet2_tlv.Eta();
   t_jet2Phi = jet2_tlv.Phi();
-  t_jet2E   = jet2_tlv.E()  ;
+  t_jet2E   = jet2_tlv.E()  ;*/
 
   t_C_a           = C_a          ;
   t_C_b           = C_b          ;
@@ -889,6 +928,13 @@ if (readLHEEventProducer_) {
     {
       DMTree->Fill();
     }
+
+
+
+  delete t_jetPt  ;
+  delete t_jetEta ;
+  delete t_jetPhi ;
+  delete t_jetE   ;
 
   delete t_triggerBitTree;
   delete t_triggerPrescaleTree;
@@ -974,27 +1020,37 @@ void DMAnalysisTreeMaker::beginJob()
   DMTree->Branch("t_metPt", &t_metPt, "t_metPt/F");
 
   DMTree->Branch("t_ch", &t_ch, "t_ch");
-  
+
+  DMTree->Branch("t_nLept", &t_nLept, "t_nLept/I");
+
   DMTree->Branch("t_lep1Pt" , &t_lep1Pt , "t_lep1Pt/F" );  
   DMTree->Branch("t_lep1Eta", &t_lep1Eta, "t_lep1Eta/F"); 
   DMTree->Branch("t_lep1Phi", &t_lep1Phi, "t_lep1Phi/F"); 
   DMTree->Branch("t_lep1E"  , &t_lep1E  , "t_lep1E/F"  ); 
+  DMTree->Branch("t_lep1Flv"  , &t_lep1Flv  , "t_lep1Flv/I"  ); 
 
   DMTree->Branch("t_lep2Pt" , &t_lep2Pt , "t_lep2Pt/F" );  
   DMTree->Branch("t_lep2Eta", &t_lep2Eta, "t_lep2Eta/F");
   DMTree->Branch("t_lep2Phi", &t_lep2Phi, "t_lep2Phi/F");
   DMTree->Branch("t_lep2E"  , &t_lep2E  , "t_lep2E/F"  );  
+  DMTree->Branch("t_lep2Flv"  , &t_lep2Flv  , "t_lep2Flv/I"  ); 
 
-  DMTree->Branch("t_dilepInvMass", &t_dilepInvMass , "t_dilepInvMass/F" ); 
+  DMTree->Branch("t_dilepInvMass", &t_dilepInvMass , "t_dilepInvMass/F" );
 
-  DMTree->Branch("t_jet1Pt" , &t_jet1Pt , "t_jet1Pt/F" ); 
+  DMTree->Branch("t_nJet", &t_nJet, "t_nJet/I"); 
+
+  /*DMTree->Branch("t_jet1Pt" , &t_jet1Pt , "t_jet1Pt/F" ); 
   DMTree->Branch("t_jet1Eta", &t_jet1Eta, "t_jet1Eta/F");
   DMTree->Branch("t_jet1Phi", &t_jet1Phi, "t_jet1Phi/F");
   DMTree->Branch("t_jet1E"  , &t_jet1E  , "t_jet1E/F"  ); 
   DMTree->Branch("t_jet2Pt" , &t_jet2Pt , "t_jet2Pt/F" );
   DMTree->Branch("t_jet2Eta", &t_jet2Eta, "t_jet2Eta/F");
   DMTree->Branch("t_jet2Phi", &t_jet2Phi, "t_jet2Phi/F");
-  DMTree->Branch("t_jet2E"  , &t_jet2E  , "t_jet2E/F"  );  
+  DMTree->Branch("t_jet2E"  , &t_jet2E  , "t_jet2E/F"  );*/  
+  DMTree->Branch( "t_jetPt" ,     "std::vector<float>",     &t_jetPt    );
+  DMTree->Branch( "t_jetEta",     "std::vector<float>",     &t_jetEta   );
+  DMTree->Branch( "t_jetPhi",     "std::vector<float>",     &t_jetPhi   );
+  DMTree->Branch( "t_jetE"  ,     "std::vector<float>",     &t_jetE     );
 
   DMTree->Branch("t_C_a"          , &t_C_a          , "t_C_a/F"          );     
   DMTree->Branch("t_C_b"          , &t_C_b          , "t_C_b/F"          );          
