@@ -97,6 +97,11 @@ private:
   std::vector<float> *t_jetPhi;
   std::vector<float> *t_jetE  ;
 
+  std::vector<float> *t_jetAK4chargedHadronEnergy;
+  std::vector<float> *t_jetAK4chargedEmEnergy    ;
+  std::vector<float> *t_jetAK4neutralHadronEnergy;
+  std::vector<float> *t_jetAK4neutralEmEnergy    ;
+
   // event shape definitions
   float t_C_a          ;
   float t_C_b          ;
@@ -316,21 +321,38 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::Handle< std::vector<float> > handle_jetAK4Eta;
   edm::Handle< std::vector<float> > handle_jetAK4Phi;
   edm::Handle< std::vector<float> > handle_jetAK4Pt ;
+  edm::Handle< std::vector<float> > handle_jetAK4chargedHadronEnergy ;
+  edm::Handle< std::vector<float> > handle_jetAK4chargedEmEnergy     ;
+  edm::Handle< std::vector<float> > handle_jetAK4neutralHadronEnergy ;
+  edm::Handle< std::vector<float> > handle_jetAK4neutralEmEnergy     ;
 
   iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4E"  ), handle_jetAK4E  );
   iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Eta"), handle_jetAK4Eta);
   iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Phi"), handle_jetAK4Phi);
   iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4Pt" ), handle_jetAK4Pt );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4chargedHadronEnergy" ), handle_jetAK4chargedHadronEnergy );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4chargedEmEnergy"     ), handle_jetAK4chargedEmEnergy     );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4neutralHadronEnergy" ), handle_jetAK4neutralHadronEnergy );
+  iEvent.getByLabel(edm::InputTag("jetsAK4","jetAK4neutralEmEnergy"     ), handle_jetAK4neutralEmEnergy     );
 
   if (!handle_jetAK4E.isValid())   return;
   if (!handle_jetAK4Eta.isValid()) return;
   if (!handle_jetAK4Phi.isValid()) return;
   if (!handle_jetAK4Pt.isValid())  return;
+  if (!handle_jetAK4chargedHadronEnergy.isValid())  return;
+  if (!handle_jetAK4chargedEmEnergy.isValid())      return;
+  if (!handle_jetAK4neutralHadronEnergy.isValid())  return;
+  if (!handle_jetAK4neutralEmEnergy.isValid())      return;
 
   const std::vector<float> jetAK4E   = *(handle_jetAK4E.product()  );
   const std::vector<float> jetAK4Eta = *(handle_jetAK4Eta.product());
   const std::vector<float> jetAK4Phi = *(handle_jetAK4Phi.product());
   const std::vector<float> jetAK4Pt  = *(handle_jetAK4Pt.product() );
+  const std::vector<float> jetAK4chargedHadronEnergy  = *(handle_jetAK4chargedHadronEnergy.product() );
+  const std::vector<float> jetAK4chargedEmEnergy      = *(handle_jetAK4chargedEmEnergy.product()     );
+  const std::vector<float> jetAK4neutralHadronEnergy  = *(handle_jetAK4neutralHadronEnergy.product() );
+  const std::vector<float> jetAK4neutralEmEnergy      = *(handle_jetAK4neutralEmEnergy.product()     );
+
 
   // MET
   edm::Handle< std::vector<float> > handle_metPt;
@@ -476,7 +498,12 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   t_jetPt  = new std::vector<float>;
   t_jetEta = new std::vector<float>;
   t_jetPhi = new std::vector<float>;
-  t_jetE   = new std::vector<float>;
+  t_jetE   = new std::vector<float>;  
+
+  t_jetAK4chargedHadronEnergy = new std::vector<float>;
+  t_jetAK4chargedEmEnergy     = new std::vector<float>;
+  t_jetAK4neutralHadronEnergy = new std::vector<float>;
+  t_jetAK4neutralEmEnergy     = new std::vector<float>;
 
   t_triggerBitTree      = new std::vector<float>      ;
   t_triggerPrescaleTree = new std::vector<int>        ;
@@ -484,6 +511,7 @@ void DMAnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   t_METBitTree      = new std::vector<float>      ;
   t_METNameTree     = new std::vector<std::string>;
+
 
 //---------------------------------------------------------------------------------- 
 
@@ -669,10 +697,12 @@ std::sort(AnalysisLeptons.begin(), AnalysisLeptons.end());
 	t_jetPhi -> push_back( jetAK4Phi.at(i) );
 	t_jetE   -> push_back( jetAK4E.at(i)   );
 
+        t_jetAK4chargedHadronEnergy -> push_back( jetAK4chargedHadronEnergy.at(i)  );
+        t_jetAK4chargedEmEnergy     -> push_back( jetAK4chargedEmEnergy.at(i)      );
+        t_jetAK4neutralHadronEnergy -> push_back( jetAK4neutralHadronEnergy.at(i)  );
+        t_jetAK4neutralEmEnergy     -> push_back( jetAK4neutralEmEnergy.at(i)      );
+
   }  
-
-
-
 
 
 // top generation variables
@@ -752,6 +782,8 @@ if (readGen_) {
 
   //printf("-----------\n");
 	
+
+
 
   for ( int i = 0; i < genSize; i++) {
 
@@ -936,6 +968,11 @@ if (readLHEEventProducer_) {
   delete t_jetPhi ;
   delete t_jetE   ;
 
+  delete t_jetAK4chargedHadronEnergy ;
+  delete t_jetAK4chargedEmEnergy     ;
+  delete t_jetAK4neutralHadronEnergy ;
+  delete t_jetAK4neutralEmEnergy     ;
+
   delete t_triggerBitTree;
   delete t_triggerPrescaleTree;
   delete t_triggerNameTree;
@@ -1027,7 +1064,7 @@ void DMAnalysisTreeMaker::beginJob()
   DMTree->Branch("t_lep1Eta", &t_lep1Eta, "t_lep1Eta/F"); 
   DMTree->Branch("t_lep1Phi", &t_lep1Phi, "t_lep1Phi/F"); 
   DMTree->Branch("t_lep1E"  , &t_lep1E  , "t_lep1E/F"  ); 
-  DMTree->Branch("t_lep1Flv"  , &t_lep1Flv  , "t_lep1Flv/I"  ); 
+  DMTree->Branch("t_lep1Flv", &t_lep1Flv  , "t_lep1Flv/I"  ); 
 
   DMTree->Branch("t_lep2Pt" , &t_lep2Pt , "t_lep2Pt/F" );  
   DMTree->Branch("t_lep2Eta", &t_lep2Eta, "t_lep2Eta/F");
@@ -1051,6 +1088,11 @@ void DMAnalysisTreeMaker::beginJob()
   DMTree->Branch( "t_jetEta",     "std::vector<float>",     &t_jetEta   );
   DMTree->Branch( "t_jetPhi",     "std::vector<float>",     &t_jetPhi   );
   DMTree->Branch( "t_jetE"  ,     "std::vector<float>",     &t_jetE     );
+
+  DMTree->Branch( "t_jetAK4chargedHadronEnergy",     "std::vector<float>",     &t_jetAK4chargedHadronEnergy     );
+  DMTree->Branch( "t_jetAK4chargedEmEnergy"    ,     "std::vector<float>",     &t_jetAK4chargedEmEnergy         );
+  DMTree->Branch( "t_jetAK4neutralHadronEnergy",     "std::vector<float>",     &t_jetAK4neutralHadronEnergy     );
+  DMTree->Branch( "t_jetAK4neutralEmEnergy"    ,     "std::vector<float>",     &t_jetAK4neutralEmEnergy         );
 
   DMTree->Branch("t_C_a"          , &t_C_a          , "t_C_a/F"          );     
   DMTree->Branch("t_C_b"          , &t_C_b          , "t_C_b/F"          );          
